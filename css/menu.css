@@ -1,4 +1,4 @@
-/* dCodes Framework:(c) TemplateAccess */
+/* dCodes Framework:(c) TemplateAccess
 ul.dc_mm-orange,ul.dc_mm-orange li{
 	border:none;
 	list-style:none;
@@ -217,4 +217,61 @@ ul.dc_mm-orange li .sub-container.non-mega li a:hover{
 	ul.dc_mm-orange li a .dc-mega-icon {
 		display:none;
 	}	
- }
+ } */
+ /* Reset mặc định */
+ul.dc_mm-orange, ul.dc_mm-orange li {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    border: none;
+}
+
+/* Thiết lập navbar */
+ul.dc_mm-orange {
+    display: flex; /* Sử dụng Flexbox */
+    justify-content: space-between; /* Cách đều các mục */
+    align-items: center; /* Căn giữa theo chiều dọc */
+    background: #c10808; /* Màu nền */
+    width: 100%;
+    padding: 0;
+    font: normal 13px Arial, sans-serif;
+}
+
+/* Thiết lập các mục li */
+ul.dc_mm-orange li {
+    flex: 1; /* Mỗi mục chiếm không gian bằng nhau */
+    text-align: center; /* Căn giữa văn bản */
+}
+
+/* Thiết lập liên kết */
+ul.dc_mm-orange li a {
+    display: block;
+    color: #fff;
+    text-decoration: none;
+    padding: 20px 10px; /* Khoảng cách bên trong */
+    text-transform: uppercase;
+    font-family: 'Doppio One', sans-serif;
+    font-size: 15px;
+    text-shadow: 1px 1px 1px #000;
+}
+
+/* Hiệu ứng hover */
+ul.dc_mm-orange li a:hover {
+    background: #70389C; /* Màu nền khi hover */
+    color: #fff;
+}
+
+/* Responsive */
+@media only screen and (max-width: 640px) {
+    ul.dc_mm-orange li a {
+        font-size: 12px;
+        padding: 15px 5px;
+    }
+}
+
+@media only screen and (max-width: 480px) {
+    ul.dc_mm-orange li a {
+        font-size: 10px;
+        padding: 10px 5px;
+    }
+}

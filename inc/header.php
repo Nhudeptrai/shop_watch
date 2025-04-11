@@ -61,7 +61,7 @@ $quantity_cart = $ct->get_total_quantity_cart();
                 <a href="index.php"><img src="images/logo.jpg" style="width:200px;height:80px;margin-left:50px"
                         alt="" /></a>
             </div>
-            <div class="header_top_right">
+              <div class="header_top_right">
                 <div class="search_box">
                     <form>
                         <input type="text" value="Search for Products" onfocus="this.value = '';"
@@ -90,11 +90,15 @@ $quantity_cart = $ct->get_total_quantity_cart();
         </div>
         <div class="menu">
             <ul id="dc_mega-menu-orange" class="dc_mm-orange">
-                <li><a href="index.php">Home</a></li>
-                <li><a href="products.php">Products</a> </li>
-                <li><a href="topbrands.php">Top Brands</a></li>
-                <li><a href="cart.php">Cart</a></li>
-                <li><a href="contact.php">Contact</a> </li>
+                <li><a href="index.php">Trang chủ</a></li>
+                <li><a href="products.php">Sản phẩm</a> </li>
+                <li><a href="topbrands.php">Thương hiệu</a></li>
+                <li><a href="cart.php">Giỏ hàng</a></li>
+                <li><a href="#">Giới thiệu</a> </li>
+                <li><a href="contact.php">Liên hệ</a> </li>
+              
                 <div class="clear"></div>
+                
             </ul>
         </div>
+     
