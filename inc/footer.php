@@ -34,8 +34,8 @@
             <div class="col_1_of_4 span_1_of_4">
                 <h4>Liên hệ</h4>
                 <ul>
-                    <li><span>+84-1713458599</span></li>
-                    <li><span>+84-1813458552</span></li>
+                    <li><span>+84-333732439</span></li>
+                    <li><span>+84-123456789</span></li>
                 </ul>
                 <div class="social-icons">
                     <h4>Theo dõi chúng tôi</h4>

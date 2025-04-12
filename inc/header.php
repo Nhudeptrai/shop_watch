@@ -33,6 +33,7 @@ $quantity_cart = $ct->get_total_quantity_cart();
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
     <link href="css/style.css" rel="stylesheet" type="text/css" media="all" />
     <link href="css/menu.css" rel="stylesheet" type="text/css" media="all" />
+    <link href="css/introduce.css" rel="stylesheet" type="text/css" media="all" />
     <!-- Thêm Slick CSS -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.css" />
@@ -92,7 +93,7 @@ $quantity_cart = $ct->get_total_quantity_cart();
             <ul id="dc_mega-menu-orange" class="dc_mm-orange">
                 <li><a href="index.php">Trang chủ</a></li>
                 <li><a href="products.php">Sản phẩm</a> </li>
-                <li><a href="topbrands.php">Thương hiệu</a></li>
+                <li><a href="topbrands.php">Top Thương hiệu</a></li>
                 <li><a href="cart.php">Giỏ hàng</a></li>
                 <li><a href="#">Giới thiệu</a> </li>
                 <li><a href="contact.php">Liên hệ</a> </li>

@@ -237,6 +237,12 @@ ul.dc_mm-orange {
     font: normal 13px Arial, sans-serif;
 }
 
+/* Hiệu ứng hover */
+ul.dc_mm-orange li a:hover {
+    background: #7c0606; /* Màu nền khi hover */
+    color: #fff;
+	transition: ease-in-out 0.3s;
+}
 /* Thiết lập các mục li */
 ul.dc_mm-orange li {
     flex: 1; /* Mỗi mục chiếm không gian bằng nhau */
@@ -255,11 +261,7 @@ ul.dc_mm-orange li a {
     text-shadow: 1px 1px 1px #000;
 }
 
-/* Hiệu ứng hover */
-ul.dc_mm-orange li a:hover {
-    background: #70389C; /* Màu nền khi hover */
-    color: #fff;
-}
+
 
 /* Responsive */
 @media only screen and (max-width: 640px) {
