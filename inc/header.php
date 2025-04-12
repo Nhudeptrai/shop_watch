@@ -95,7 +95,7 @@ $quantity_cart = $ct->get_total_quantity_cart();
                 <li><a href="products.php">Sản phẩm</a> </li>
                 <li><a href="topbrands.php">Top Thương hiệu</a></li>
                 <li><a href="cart.php">Giỏ hàng</a></li>
-                <li><a href="#">Giới thiệu</a> </li>
+                <li><a href="introduce.php">Giới thiệu</a> </li>
                 <li><a href="contact.php">Liên hệ</a> </li>
               
                 <div class="clear"></div>
