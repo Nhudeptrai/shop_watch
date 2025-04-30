@@ -1,82 +1,113 @@
 <?php
-	include_once 'inc/header.php';
-	include_once 'inc/slider.php';
+include_once 'lib/session.php';
+Session::init();
+include_once "classes/customer.php";
+$cs = new customer();
 ?>
- <div class="main">
-    <div class="content">
-    	 <div class="login_panel">
-        	<h3>Existing Customers</h3>
-        	<p>Sign in with the form below.</p>
-        	<form action="hello" method="get" id="member">
-                	<input name="Domain" type="text" value="Username" class="field" onfocus="this.value = '';" onblur="if (this.value == '') {this.value = 'Username';}">
-                    <input name="Domain" type="password" value="Password" class="field" onfocus="this.value = '';" onblur="if (this.value == '') {this.value = 'Password';}">
-                 </form>
-                 <p class="note">If you forgot your passoword just enter your email and click <a href="#">here</a></p>
-                    <div class="buttons"><div><button class="grey">Sign In</button></div></div>
-                    </div>
-    	<div class="register_account">
-    		<h3>Register New Account</h3>
-    		<form>
-		   			 <table>
-		   				<tbody>
-						<tr>
-						<td>
-							<div>
-							<input type="text" value="Name" onfocus="this.value = '';" onblur="if (this.value == '') {this.value = 'Name';}" >
-							</div>
-							
-							<div>
-							   <input type="text" value="City" onfocus="this.value = '';" onblur="if (this.value == '') {this.value = 'City';}">
-							</div>
-							
-							<div>
-								<input type="text" value="Zip-Code" onfocus="this.value = '';" onblur="if (this.value == '') {this.value = 'Zip-Code';}">
-							</div>
-							<div>
-								<input type="text" value="E-Mail" onfocus="this.value = '';" onblur="if (this.value == '') {this.value = 'E-Mail';}">
-							</div>
-		    			 </td>
-		    			<td>
-						<div>
-							<input type="text" value="Address" onfocus="this.value = '';" onblur="if (this.value == '') {this.value = 'Address';}">
-						</div>
-		    		<div>
-						<select id="country" name="country" onchange="change_country(this.value)" class="frm-field required">
-							<option value="null">Select a Country</option>         
-							<option value="AF">Afghanistan</option>
-							<option value="AL">Albania</option>
-							<option value="DZ">Algeria</option>
-							<option value="AR">Argentina</option>
-							<option value="AM">Armenia</option>
-							<option value="AW">Aruba</option>
-							<option value="AU">Australia</option>
-							<option value="AT">Austria</option>
-							<option value="AZ">Azerbaijan</option>
-							<option value="BS">Bahamas</option>
-							<option value="BH">Bahrain</option>
-							<option value="BD">Bangladesh</option>
+<?php
+$login_result = '';
+if (isset($_GET['logout']) && $_GET['logout'] == '1') {
+   $cs->logout_customer();
+   header("Location: login.php");
+   exit();
+}
+if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['login'])) {
+    $login_result = $cs->login_customer($_POST);
 
-		         </select>
-				 </div>		        
-	
-		           <div>
-		          <input type="text" value="Phone" onfocus="this.value = '';" onblur="if (this.value == '') {this.value = 'Phone';}">
-		          </div>
-				  
-				  <div>
-					<input type="text" value="Password" onfocus="this.value = '';" onblur="if (this.value == '') {this.value = 'Password';}">
-				</div>
-		    	</td>
-		    </tr> 
-		    </tbody></table> 
-		   <div class="search"><div><button class="grey">Create Account</button></div></div>
-		    <p class="terms">By clicking 'Create Account' you agree to the <a href="#">Terms &amp; Conditions</a>.</p>
-		    <div class="clear"></div>
-		    </form>
-    	</div>  	
-       <div class="clear"></div>
-    </div>
- </div>
- <?php
-	include_once 'inc/footer.php';
+    //  Kiểm tra nếu đăng nhập thành công và có redirect_url
+     if (strpos($login_result, 'success') !== false && Session::get('redirect_url')) {
+      $redirect_url = Session::get('redirect_url');
+      Session::set('redirect_url', null); // Xóa redirect_url sau khi sử dụng
+      $login_result = str_replace(
+          "window.location.href = 'index.php'",
+          "window.location.href = '$redirect_url'",
+          $login_result
+      );
+  }
+}
 ?>
+
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <?php include_once "inc/style.php"; ?>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <!-- Tải Font Awesome để sử dụng biểu tượng con mắt -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+  <title>Đăng nhập | ShopWatch</title>
+  <style>
+    /* CSS để căn giữa biểu tượng con mắt */
+    .password-container {
+      position: relative;
+    }
+    .password-container .fa-eye, .password-container .fa-eye-slash {
+      position: absolute;
+      right: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      cursor: pointer;
+      color: #555;
+      font-size: 18px;
+    }
+  </style>
+</head>
+
+<body>
+  <?php include_once "inc/back-to-top.php"; ?>
+  <?php include_once "inc/header.php"; ?>
+  <main class="px-[5%] py-6 m-header bg-zinc-200">
+    <div class="rounded-2xl bg-white grid grid-cols-2 product-shadow">
+      <!-- Form đăng nhập -->
+      <form action="" method="POST" class="w-full py-8 px-6 text-lg">
+        <h2 class="font-bold text-3xl text-red-700 pb-3">ĐĂNG NHẬP</h2>
+
+        <div class="py-2">
+          <label for="email">Email:</label>
+          <input type="email" name="email" required placeholder="<?php echo isset($_POST['email']) ? htmlspecialchars($_POST['email']) : 'Email'; ?>" class="rounded-xl px-3 py-1 bg-white w-full border border-gray-500 focus:border-red-700 duration-150 focus:text-red-700" />
+        </div>
+
+        <div class="pt-2 pb-4 relative">
+          <label for="password">Mật khẩu:</label>
+          <input type="password" name="password" id="password" placeholder="Mật khẩu" class="rounded-xl px-3 py-1 bg-white w-full border border-gray-500 focus:border-red-700 duration-150 focus:text-red-700" />
+          <i class="fa fa-eye-slash absolute right-3 top-11 cursor-pointer" id="togglePassword" aria-hidden="true"></i>
+        </div>
+
+        <input type="submit" name="login" value="Đăng nhập" class="px-4 py-1 mt-1 rounded-xl bg-red-50 border border-red-300 text-red-700 hover:border-red-700 hover:bg-gradient-to-b from-red-700 to-red-800 hover:text-white duration-150 cursor-pointer" />
+      </form>
+      <?php
+      if (!empty($login_result)) {
+        echo $login_result;
+      }
+      ?>
+      <!-- Hình ảnh + liên kết tới đăng ký -->
+      <div class="relative min-h-120">
+        <img src="images/login.jpg" alt="login" class="rounded-se-2xl rounded-ee-2xl object-cover w-full h-full absolute top-0 left-0" />
+        <div class="bg-[#00000066] rounded-se-2xl rounded-ee-2xl flex flex-col justify-center px-8 z-10 w-full h-full absolute top-0 left-0">
+          <h1 class="text-white text-4xl font-bold text-center pb-4">Chào mừng!</h1>
+          <p class="text-white italic text-center text-lg">Chào mừng bạn quay trở lại với ShopWatch!</p>
+          <a href="register.php" class="px-4 py-1 mt-2 rounded-xl bg-gradient-to-b from-amber-600 to-orange-800 text-white cursor-pointer w-fit mx-auto text-lg">
+            Chưa có tài khoản? Đăng ký ngay!
+          </a>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <?php include_once "inc/footer.php"; ?>
+
+  <!-- JavaScript để xử lý hiển thị/ẩn mật khẩu -->
+  <script>
+    const togglePassword = document.getElementById('togglePassword');
+    const passwordInput = document.getElementById('password');
+
+    togglePassword.addEventListener('click', function () {
+      // Chuyển đổi type của input giữa password và text
+      const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+      passwordInput.setAttribute('type', type);
+      // Chuyển đổi biểu tượng con mắt
+      this.classList.toggle('fa-eye-slash');
+      this.classList.toggle('fa-eye');
+    });
+  </script>
+</body>
+</html>

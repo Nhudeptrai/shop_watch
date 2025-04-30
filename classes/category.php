@@ -76,7 +76,7 @@ class category {
         $result = $this->db->select($query);
         return $result;
     }
-    public function show_category_fontend(){
+    public function show_category_frontend(){
         $query = "SELECT * FROM tbl_category order by catId asc";
         $result = $this->db->select($query);
         return $result;

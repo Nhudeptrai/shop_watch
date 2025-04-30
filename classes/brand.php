@@ -76,6 +76,17 @@ class brand {
         $result = $this->db->select($query);
         return $result;
     }
+
+    public function show_brand_frontend(){
+        $query = "SELECT * FROM tbl_brand order by brandId asc";
+        $result = $this->db->select($query);
+        return $result;
+    }
+    public function get_product_by_brand($id){
+        $query = "SELECT * FROM tbl_product WHERE brandId='$id' order by brandId desc";
+        $result = $this->db->select($query);
+        return $result;
+    }
 } // 🔥 Đóng class `brand`
 
 ?>

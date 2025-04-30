@@ -1,40 +1,133 @@
-<?php include_once 'inc/header.php';?>
-<?php include_once 'inc/sidebar.php';?>
-<?php include_once '../classes/brand.php' ; ?>
-
 <?php
-    $brand = new brand();
-    if($_SERVER['REQUEST_METHOD']=== 'POST'){
-        $brandName = $_POST['brandName'];
+include_once '../lib/session.php';
+Session::checkSession();
+
+include_once '../classes/brand.php';
+
+$brand = new brand();
+$insertBrand = null;
+
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $brandName = isset($_POST['brandName']) ? trim($_POST['brandName']) : '';
+    if (empty($brandName)) {
+        $insertBrand = '<script>Swal.fire({icon: "error", title: "Lỗi!", text: "Tên thương hiệu không được để trống!", showConfirmButton: false, timer: 2000});</script>';
+    } else {
         $insertBrand = $brand->insert_brand($brandName);
+        if (strpos($insertBrand, 'thành công') !== false) {
+            $insertBrand = '<script>Swal.fire({icon: "success", title: "Thành công!", text: "Thêm thương hiệu thành công!", showConfirmButton: false, timer: 2000});</script>';
+        } else {
+            $insertBrand = '<script>Swal.fire({icon: "error", title: "Lỗi!", text: "' . addslashes($insertBrand) . '", showConfirmButton: false, timer: 2000});</script>';
+        }
     }
+}
 ?>
-        <div class="grid_10">
-            <div class="box round first grid">
-                
-                <h2>Thêm thương hiệu </h2>
-               
-               <div class="block copyblock"> 
-               <?php
-                if(isset($insertBrand)){
-                    echo $insertBrand;
-                }
-                ?>
-                 <form action ="brandadd.php" method ="post">
-                    <table class="form">					
-                        <tr>
-                            <td>
-                                <input type="text" name="brandName" placeholder="Làm ơn thêm danh mục thương hiệu.." class="medium" />
-                            </td>
-                        </tr>
-						<tr> 
-                            <td>
-                                <input type="submit" name="submit" Value="Save" />
-                            </td>
-                        </tr>
-                    </table>
+
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>Thêm thương hiệu | ShopWatch Admin</title>
+    <!-- Tailwind CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        /* Tùy chỉnh input */
+        input[type="text"] {
+            transition: border-color 0.3s ease;
+        }
+        input[type="text"]:focus {
+            border-color: #b91c1c;
+            outline: none;
+        }
+        /* Tùy chỉnh nút */
+        input[type="submit"] {
+            transition: background-color 0.3s ease;
+        }
+        input[type="submit"]:hover {
+            background-color: #991b1b;
+        }
+        /* Responsive */
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+                transition: transform 0.3s ease;
+            }
+            .sidebar.open {
+                transform: translateX(0);
+            }
+            .content {
+                margin-left: 0 !important;
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-100 font-sans">
+    <div class="flex flex-col min-h-screen">
+         <!-- Header -->
+         <?php include_once 'inc/header.php'; ?>
+
+        <!-- Main Content -->
+        <div class="flex flex-1">
+            <!-- Sidebar -->
+            <div class="sidebar fixed inset-y-0 left-0 w-64 md:static md:translate-x-0">
+                <?php include_once 'inc/sidebar.php'; ?>
+            </div>
+
+            <!-- Content -->
+            <main class="content flex-1 p-6 md:ml-64">
+                <h2 class="text-3xl font-bold text-red-700 mb-6">Thêm thương hiệu</h2>
+                <div class="bg-white shadow-lg rounded-lg p-6 max-w-lg">
+                    <?php
+                    if (isset($insertBrand)) {
+                        echo $insertBrand;
+                    }
+                    ?>
+                    <form id="brandForm" action="brandadd.php" method="post" class="space-y-4">
+                        <div>
+                            <label for="brandName" class="block text-gray-700 font-semibold mb-2">Tên thương hiệu</label>
+                            <input type="text" id="brandName" name="brandName" placeholder="Nhập tên thương hiệu..." class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-700" />
+                        </div>
+                        <div>
+                            <input type="submit" value="Lưu" class="w-full bg-red-700 text-white p-3 rounded-lg hover:bg-red-800 cursor-pointer" />
+                        </div>
                     </form>
                 </div>
-            </div>
+            </main>
         </div>
-<?php include_once 'inc/footer.php';?>
+
+        <!-- Footer -->
+        <footer class="bg-white shadow-md p-4 mt-auto">
+            <?php include_once 'inc/footer.php'; ?>
+        </footer>
+    </div>
+
+    <!-- JavaScript -->
+    <script>
+        // Kiểm tra form trước khi submit
+        $('#brandForm').submit(function(e) {
+            const brandName = $('#brandName').val().trim();
+            if (!brandName) {
+                e.preventDefault();
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Lỗi!',
+                    text: 'Tên thương hiệu không được để trống!',
+                    showConfirmButton: false,
+                    timer: 2000
+                });
+            }
+        });
+
+        // Toggle sidebar trên mobile
+        $('#toggleSidebar').click(function() {
+            $('.sidebar').toggleClass('open');
+        });
+    </script>
+</body>
+</html>

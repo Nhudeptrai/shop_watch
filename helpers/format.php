@@ -2,7 +2,8 @@
 /** Format Class */
 class Format{
     public function formatDate($date){
-        return date('F j. g:ia',strtotime($date));
+        // return date('F j. g:ia',strtotime($date));
+        return date('d/m/Y H:i:s', strtotime($date));
     }
     // chua text gioi han 
     public function textShorten($text,$limit = 400){

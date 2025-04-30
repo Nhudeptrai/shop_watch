@@ -1,9 +1,9 @@
 <?php
+ob_start(); // Start output buffering
 include_once 'lib/session.php';
 Session::init();
-?>
-<?php
 include_once 'lib/database.php';
+
 include_once 'helpers/format.php';
 spl_autoload_register(function ($className) {
     include_once "classes/" . $className . ".php";
@@ -12,94 +12,106 @@ spl_autoload_register(function ($className) {
 $db = new Database();
 $fm = new Format();
 $ct = new cart();
+$br = new brand();
 $us = new user();
 $cat = new category();
+$cs = new customer();
 $pd = new product();
+
+$quantity_cart = $ct->get_total_quantity_cart();
 ?>
+
 <?php
 header("Cache-Control: no-cache, must-revalidate");
 header("Pragma: no-cache");
 header("Expires: Sat, 26 Jul 1997 05:00:00 GMT");
 header("Cache-Control: max-age=2592000");
 ?>
-<?php
-$quantity_cart = $ct->get_total_quantity_cart();
+
+<header class="flex items-center justify-between w-full px-5 mb-1 z-1000 fixed top-0 left-0 right-0 bg-white">
+  <div class="flex gap-x-4 items-center text-lg">
+    <a href="index.php"><img src="images/logo.jpg" alt="Logo ShopWatch" class="h-20 pe-5" /></a>
+    <a href="index.php" id="header-btn-index" class="fira-sans px-3 py-1 hover:bg-red-800 hover:text-white hover:font-bold duration-150">TRANG CHỦ</a>
+    <a href="product.php" id="header-btn-product" class="fira-sans px-3 py-1 hover:bg-red-800 hover:text-white hover:font-bold duration-150">SẢN PHẨM</a>
+    <a href="introduce.php" id="header-btn-introduce" class="fira-sans px-3 py-1 hover:bg-red-800 hover:text-white hover:font-bold duration-150">GIỚI THIỆU</a>
+    <a href="contact.php" id="header-btn-contact" class="fira-sans px-3 py-1 hover:bg-red-800 hover:text-white hover:font-bold duration-150">LIÊN HỆ</a>
+  </div>
+
+  <div class="flex gap-x-4 items-center">
+    <!-- Shopping Cart -->
+    <?php
+$check_cart = $ct->check_cart();
+if($check_cart == true){
+    echo ' <a href="cart.php" class="relative cursor-pointer">';
+}else{
+    echo '';
+}
 ?>
-<!DOCTYPE HTML>
-
-<head>
-    <title>Store Website</title>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-    <link href="css/style.css" rel="stylesheet" type="text/css" media="all" />
-    <link href="css/menu.css" rel="stylesheet" type="text/css" media="all" />
-    <link href="css/introduce.css" rel="stylesheet" type="text/css" media="all" />
-    <!-- Thêm Slick CSS -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.css" />
-    <link rel="stylesheet" type="text/css"
-        href="https://cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick-theme.css" />
-    <script src="js/jquerymain.js"></script>
-    <script src="js/script.js" type="text/javascript"></script>
-    <script type="text/javascript" src="js/jquery-1.7.2.min.js"></script>
-    <script type="text/javascript" src="js/nav.js"></script>
-    <script type="text/javascript" src="js/move-top.js"></script>
-    <script type="text/javascript" src="js/easing.js"></script>
-    <script type="text/javascript" src="js/nav-hover.js"></script>
-    
-
-    <!-- Thêm Slick JS -->
-    <script type="text/javascript" src="js/carosel.js"></script>
-    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.min.js"></script>
-    <link href='http://fonts.googleapis.com/css?family=Monda' rel='stylesheet' type='text/css'>
-    <link href='http://fonts.googleapis.com/css?family=Doppio+One' rel='stylesheet' type='text/css'>
-</head>
-
-<body>
-    <div class="wrap">
-        <div class="header_top">
-            <div class="logo">
-                <a href="index.php"><img src="images/logo.jpg" style="width:200px;height:80px;margin-left:50px"
-                        alt="" /></a>
-            </div>
-              <div class="header_top_right">
-                <div class="search_box">
-                    <form>
-                        <input type="text" value="Search for Products" onfocus="this.value = '';"
-                            onblur="if (this.value == '') {this.value = 'Search for Products';}"><input type="submit"
-                            value="SEARCH">
-                    </form>
-                </div>
-
-                <div class="login">
-                    <a href="login.php">
-                        <i class="fa fa-user"></i> Tài khoản
-                    </a>
-                </div>
-                <div class="shopping_cart">
-                    <a href="cart.php" class="cart-icon">
-                        <i class="fa fa-shopping-cart"></i>
-                        <?php if ($quantity_cart > 0): ?>
-                            <span class="cart-count"><?php echo $quantity_cart; ?></span>
-                        <?php endif; ?>
-                    </a>
-                </div>
-
-                <div class="clear"></div>
-            </div>
-            <div class="clear"></div>
+    <div class="cart">
+      <a href="cart.php" class="relative cursor-pointer">
+        <i class="fa fa-shopping-cart text-4xl! me-4" aria-hidden="true"></i>
+        <div class="bg-red-800 text-white absolute -top-4 right-0 rounded-full px-1.5">
+          <?php echo $quantity_cart ? $quantity_cart : 0; ?>
         </div>
-        <div class="menu">
-            <ul id="dc_mega-menu-orange" class="dc_mm-orange">
-                <li><a href="index.php">Trang chủ</a></li>
-                <li><a href="products.php">Sản phẩm</a> </li>
-                <li><a href="topbrands.php">Top Thương hiệu</a></li>
-                <li><a href="cart.php">Giỏ hàng</a></li>
-                <li><a href="introduce.php">Giới thiệu</a> </li>
-                <li><a href="contact.php">Liên hệ</a> </li>
-              
-                <div class="clear"></div>
-                
-            </ul>
-        </div>
+      </a>
+    </div>
+
+    <!-- Kiểm tra trạng thái đăng nhập -->
+    <?php
+    $login_check = Session::get('customer_login');
+    if ($login_check == false) {
+    ?>
+      <!-- Quản lý user khi chưa đăng nhập -->
+      <a href="login.php" class="text-lg px-3 py-1 hover:bg-red-800 hover:text-white hover:font-bold duration-150">
+        <i class="fa fa-user-circle text-xl" aria-hidden="true"></i>
+        <span class="fira-sans">ĐĂNG NHẬP</span>
+      </a>
+    <?php
+    } else {
+      $username = Session::get('customer_username');
+    ?>
+      <!-- Quản lý user khi đã đăng nhập -->
+      <div class="flex gap-x-2 items-center text-lg relative cursor-pointer" id="header-user">
+         <?php echo htmlspecialchars($username); ?> 
+
+        <img src="images/avatars/default.jpg" alt="avatar" class="h-10 rounded-full" />
+        <div class="absolute top-10 right-0 flex flex-col text-right w-50 hidden" id="header-sub-menu">
      
+          <a href="order-history.php"class="bg-red-100 py-1 px-2 rounded-ss-xl rounded-se-xl cursor-pointer hover:bg-red-800 hover:text-white duration-150">
+            <i class="fa fa-tags" aria-hidden="true"></i> Lịch sử đơn hàng
+          </a>
+          <?php
+          $login_check = Session::get('customer_login');
+          if ($login_check == false) {
+           echo '';
+          }else{
+            echo '  <a href ="profile.php" class="bg-red-100 py-1 px-2 cursor-pointer hover:bg-red-800 hover:text-white duration-150">';
+          }
+          ?>
+          <a href ="profile.php" class="bg-red-100 py-1 px-2 cursor-pointer hover:bg-red-800 hover:text-white duration-150">
+            <i class="fa fa-cog" aria-hidden="true"></i> Cài đặt
+          </a>
+          <a href="login.php?logout=1" class="bg-red-100 py-1 px-2 rounded-es-xl rounded-ee-xl cursor-pointer hover:bg-red-800 hover:text-white duration-150">
+            <i class="fa fa-sign-out" aria-hidden="true"></i> Đăng xuất
+          </a>
+        </div>
+      </div>
+    <?php
+    }
+    ?>
+  </div>
+</header>
+
+<script>
+  onload = () => {
+    if (location.href.includes("index.php")) document.getElementById("header-btn-index").classList.add("current");
+    if (location.href.includes("product.php")) document.getElementById("header-btn-product").classList.add("current");
+    if (location.href.includes("introduce.php")) document.getElementById("header-btn-introduce").classList.add("current");
+    if (location.href.includes("contact.php")) document.getElementById("header-btn-contact").classList.add("current");
+  }
+
+  document.getElementById("header-user")?.addEventListener("click", () => {
+    document.getElementById("header-sub-menu").classList.toggle("hidden");
+  });
+</script>
+<?php ob_end_flush(); ?>

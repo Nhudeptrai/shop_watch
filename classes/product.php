@@ -168,7 +168,7 @@ class product
         return $result;
     }
     // End backend
-    public function getproduct_feaathered()
+    public function getproduct_feathered()
     {
         $query = "SELECT * FROM tbl_product WHERE type_pd = '1'";
         $result = $this->db->select($query);
@@ -177,6 +177,20 @@ class product
     public function getproduct_new()
     {
         $query = "SELECT * FROM tbl_product  order by productId desc ";
+        $result = $this->db->select($query);
+        return $result;
+    }
+    public function filterproduct_new($brandId, $catId, $keyword, $min, $max)
+    {
+        $query = "SELECT * FROM tbl_product ";
+        $whereQuery = "WHERE ";
+
+        if (!empty($brandId)) $whereQuery .= "brandId = $brandId ";
+        if (!empty($catId)) $whereQuery .= (strlen($whereQuery) == 6 ? "" : "AND ") . "catId = $catId ";
+        if (!empty($keyword)) $whereQuery .= (strlen($whereQuery) == 6 ? "" : "AND ") . "productName LIKE '%$keyword%' ";
+        if ($max != NULL) $whereQuery .= (strlen($whereQuery) == 6 ? "" : "AND ") . "price BETWEEN $min AND $max ";
+        
+        $query .= (strlen($whereQuery) == 6 ? "" : $whereQuery) . "ORDER BY productId DESC";        
         $result = $this->db->select($query);
         return $result;
     }
@@ -193,8 +207,25 @@ class product
         $result = $this->db->select($query);
         return $result;
     }
-    
+    /*public function search_product_by_name($keyword){
+        $keyword = $this->db->link->real_escape_string($keyword);
 
+        $query = "SELECT * FROM tbl_product WHERE productName LIKE '%$keyword%' ORDER BY productId DESC";
+        $result = $this->db->select($query);
+        return $result;
+    }
+    public function get_product_by_price_range($min, $max) {
+        $min = mysqli_real_escape_string($this->db->link, $min);
+        $max = mysqli_real_escape_string($this->db->link, $max);
+        $query = "SELECT * FROM tbl_product WHERE price BETWEEN '$min' AND '$max' ORDER BY price ASC";
+        return $this->db->select($query);
+    }
+    public function search_product_by_name_and_price($name, $min, $max) {
+        $name = mysqli_real_escape_string($this->db->link, $name);
+        $query = "SELECT * FROM tbl_product WHERE productName LIKE '%$name%' AND price BETWEEN $min AND $max";
+        $result = $this->db->select($query);
+        return $result;
+    }*/
 }
 // End backend
 

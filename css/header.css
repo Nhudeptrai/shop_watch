@@ -1,0 +1,42 @@
+header {
+  box-shadow: 0 5px 10px rgba(0,0,0,0.25);
+  box-sizing: border-box;
+
+  .fira-sans {
+    font-family: "Fira Sans", "Arial", sans-serif!important;
+  }
+
+  .current {
+    font-weight: bold;
+    text-decoration: underline;
+    color: #c10808;
+  
+    &:hover {
+      color: white;
+      text-decoration: none;
+    }
+  }
+}
+
+.back-to-top {
+  background: linear-gradient(180deg, #c10808, #9f0712);
+  color: white;
+  border-radius: 100%;
+  font-size: 2rem;
+  text-align: center;
+  height: 50px;
+  width: 50px;
+  cursor: pointer;
+  display: none;
+  z-index: 1000;
+
+  position: fixed;
+  bottom: 3rem;
+  right: 3rem;
+
+  transition-duration: 150ms;
+
+  &:hover {
+    background: linear-gradient(180deg, #9f0712, #82181a);
+  }
+}

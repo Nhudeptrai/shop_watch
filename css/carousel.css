@@ -1,0 +1,41 @@
+.slick-slider {
+  display: grid!important;
+  grid-template-columns: 1fr 1fr;
+  column-gap: 0.5rem;
+}
+
+.slick-list {
+  grid-column: 1 / span 2;
+  order: 1;
+  display: block!important;
+}
+
+.slick-track {
+  display: flex !important;
+  margin-top: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+
+.slick-prev {
+  order: 2;
+  justify-self: end;
+}
+
+.slick-next {
+  order: 3;
+}
+
+.slick-prev, .slick-next {
+  background-color: rgb(70,70,70);
+  border-radius: 80%;
+  font-size: 1.75rem;
+  color: white;
+  cursor: pointer;
+  transition-duration: 150ms;
+  width: fit-content;
+  padding: 0 1rem;
+
+  &:hover {
+    background-color: rgb(127, 127, 127);
+  }
+}

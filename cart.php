@@ -1,112 +1,148 @@
 <?php
 include_once 'inc/header.php';
-include_once 'inc/slider.php';
 
 if (isset($_GET['cartid'])) {
-	$cartid = $_GET['cartid'];
-	$delCart = $ct->del_product_cart($cartid);
+  $cartid = $_GET['cartid'];
+  $delCart = $ct->del_product_cart($cartid);
 }
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['submit'])) {
-	$cartId = $_POST['cartId'];
-	$quantity = $_POST['quantity'];
-	$update_quantity_cart = $ct->update_quantity_cart($quantity, $cartId);
-	if ($quantity <= 0) {
-		$delCat = $ct->del_product_cart($cartId);
-	}
+  $cartId = $_POST['cartId'];
+  $quantity = $_POST['quantity'];
+  $update_quantity_cart = $ct->update_quantity_cart($quantity, $cartId);
+  if ($quantity <= 0) {
+    $delCat = $ct->del_product_cart($cartId);
+  }
+  header("Location: " . $_SERVER['PHP_SELF']);
+  exit();
 }
 ?>
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <?php include_once "inc/style.php" ?>
+    <title>Chi tiết sản phẩm | ShopWatch</title>
+  </head>
+  <body>
+    <!-- HTML Header -->
+    <?php include_once "inc/header.php" ?>
+    <?php include_once "inc/back-to-top.php" ?>
 
-<div class="main">
-	<div class="content">
-		<div class="cartoption">
-			<div class="cartpage">
-				<h2>Giỏ hàng của bạn</h2>
+    <!-- HTML main -->
+    <main class="mx-10 m-header py-6">
+      <h1 class="text-red-700 font-bold text-4xl text-center mb-4">GIỎ HÀNG</h1>
+      <?php if (isset($update_quantity_cart)) echo $update_quantity_cart; ?>
+      <!-- <?php if (isset($delCart)) echo $delCart; ?> -->
+      <table class="w-full text-lg">
+        <thead class="bg-red-700 text-white font-bold">
+          <tr>
+            <th class="w-[10%] border-1 border-red-700 px-4 py-1">Hình ảnh</th>
+            <th class="w-[52%] border-1 border-red-700 px-4">Tên sản phẩm</th>
+            <th class="w-[10%] border-1 border-red-700 px-4">Số lượng</th>
+            <th class="w-[10%] border-1 border-red-700 px-4">Giá</th>
+            <th class="w-[10%] border-1 border-red-700 px-4">Thành tiền</th>
+            <th class="w-[8%] border-1 border-red-700 px-4">Thao tác</th>
+          </tr>
+        </thead>
+        <?php
+        $get_product_cart = $ct->get_product_cart();
+        $subtotal = 0;
+        if ($get_product_cart && $get_product_cart->num_rows > 0) {
+          while ($result = $get_product_cart->fetch_assoc()) {
+            $total = $result['price'] * $result['quantity'];
+            $subtotal += $total;
+        ?>
+        <tbody class="border-red-700">
+          <tr class="odd:bg-red-100 even:bg-white">
+            <td class="border-1 border-red-700">
+              <img src="admin/uploads/<?php echo $result['image']; ?>" alt="" />
+            </td>
+            <td class="border-1 border-red-700 px-4"><?php echo $result['productName']; ?></td>
+            <td class="p-3 border border-red-300 text-center">
+      <form action="" method="post" class="flex items-center justify-center gap-2">
+        <input type="hidden" name="cartId" value="<?php echo $result['cartId']; ?>" />
 
-				<?php if (isset($update_quantity_cart))
-					echo $update_quantity_cart; ?>
-				<!-- <?php if (isset($delCart))
-					echo $delCart; ?> -->
+        <input
+          type="number"
+          name="quantity"
+          value="<?php echo $result['quantity']; ?>"
+          min="0"
+          oninput="validity.valid||(value='');"
+          onkeypress="return event.charCode >= 48 && event.charCode <= 57"
+          onpaste="return false"
+          class="w-24 h-10 text-center bg-white border border-red-300 rounded focus:outline-none focus:ring-2 focus:ring-red-400"
+        />
 
-				<table class="tblone">
-					<tr>
-						<th width="20%">Tên sản phẩm </th>
-						<th width="10%">Hình ảnh</th>
-						<th width="15%">Giá</th>
-						<th width="25%">Số lượng</th>
-						<th width="20%">Thành tiền</th>
-						<th width="10%">Thao tác</th>
-					</tr>
-					<?php
-					$get_product_cart = $ct->get_product_cart();
-					$subtotal = 0; // Luôn khởi tạo
-					
-					if ($get_product_cart && $get_product_cart->num_rows > 0) {
-						while ($result = $get_product_cart->fetch_assoc()) {
-							$total = $result['price'] * $result['quantity'];
-							$subtotal += $total;
-							?>
-							<tr>
-								<td><?php echo $result['productName']; ?></td>
-								<td><img src="admin/uploads/<?php echo $result['image']; ?>" alt="" /></td>
-								<td><?php echo number_format($result['price']); ?> đ</td>
-								<td>
-									<form action="" method="post">
-										<input type="hidden" name="cartId" value="<?php echo $result['cartId']; ?>" />
-										<input type="number" name="quantity" value="<?php echo $result['quantity']; ?>" min="0"
-											oninput="validity.valid||(value='');"
-											onkeypress="return event.charCode >= 48 && event.charCode <= 57"
-											onpaste="return false" />
-										<input type="submit" name="submit" value="Cập nhật" />
-									</form>
-								</td>
-								<td><?php echo number_format($total); ?> đ</td>
-								<td><a href="?cartid=<?php echo $result['cartId']; ?>"><i class="fa fa-trash-o"
-											style="font-size:24px"></i></a></td>
-							</tr>
-							<?php
-						}
-					} else {
-						echo '<tr><td colspan="6" style="text-align:center;">Giỏ hàng của bạn đang trống</td></tr>';
-					}
-					?>
-				</table>
+        <input
+          type="submit"
+          name="submit"
+          value="Cập nhật"
+          class="w-24 h-10 bg-red-600 text-white text-sm rounded hover:bg-red-700 transition"
+        />
+      </form>
+    </td>
+            <td class="border-1 border-red-700 text-center"><?php echo number_format($result['price']); ?>đ</td>
+            <td class="border-1 border-red-700 text-center"><?php echo number_format($total); ?>đ</td>
+            <td class="border-1 border-red-700 text-center">
+              <a href="?cartid=<?php echo $result['cartId']; ?>" class="text-red-700 hover:text-red-900">
+                <i class="fa fa-trash"></i>
+              </a>
+            </td>
+          </tr>
+        </tbody>
+        <?php
+          } // đóng while
+        } else {
+          echo '<tr><td colspan="6" style="text-align:center;">Giỏ hàng của bạn đang trống</td></tr>';
+        } // đóng if
+        ?>
+        <?php if ($subtotal > 0): ?>
+        <tfoot>
+          <tr>
+            <td colspan="3"></td>
+            <td class="bg-red-700 text-white font-bold text-center py-1 text-xl">TỔNG</td>
+            <td class="bg-red-700 text-white font-bold text-center py-1 text-xl"><?php echo number_format($subtotal); ?> đ</td>
+            <td></td>
+          </tr>
+        </tfoot>
+        <?php endif; ?>
+      </table>
 
-				<?php if ($subtotal > 0): ?>
-					<table style="float:right;text-align:left;" width="40%">
-						<tr>
-							<th>Tổng tiền: </th>
-							<td><?php echo number_format($subtotal); ?> đ</td>
-						</tr>
-						<tr>
-							<th>VAT : </th>
-							<td>10%</td>
-						</tr>
-						<tr>
-							<th>Tổng mới :</th>
-							<td>
-								<?php
-								$vat = $subtotal * 0.1;
-								$gtotal = $subtotal + $vat;
-								echo number_format($gtotal) . ' đ';
-								?>
-							</td>
-						</tr>
-					</table>
-				<?php endif; ?>
+      <div class="flex gap-x-4 justify-center text-lg mt-4">
+        <a href="product.php" class="px-4 py-1 mt-1 rounded-xl bg-red-50 border-1 border-red-300 text-red-700 hover:border-transparent hover:bg-linear-to-b hover:from-red-700 hover:to-red-800 hover:text-white duration-150 cursor-pointer">
+          <i class="fa fa-shopping-basket"></i> Tiếp tục mua sắm
+        </a>
+        <a href="order.php" class="px-4 py-1 mt-1 rounded-xl bg-amber-100 border-1 border-amber-400 text-amber-800 hover:border-transparent hover:bg-linear-to-b hover:from-amber-400 hover:to-orange-600 hover:text-white duration-150 cursor-pointer">
+          <i class="fa fa-shopping-cart"></i> Thanh toán ngay!
+        </a>
+        <!-- <button class="px-4 py-1 mt-1 rounded-xl bg-red-50 border-1 border-red-300 text-red-700 hover:border-transparent hover:bg-linear-to-b hover:from-red-700 hover:to-red-800 hover:text-white duration-150 cursor-pointer">
+          <i class="fa fa-trash"></i> Xóa giỏ hàng
+        </button> -->
+      </div>
+    </main>
 
-			</div>
-			<div class="shopping">
-				<div class="shopleft">
-					<a href="index.php"><img src="images/shop.png" alt="" /></a>
-				</div>
-				<div class="shopright">
-					<a href="login.php"><img src="images/check.png" alt="" /></a>
-				</div>
-			</div>
-		</div>
-		<div class="clear"></div>
-	</div>
-</div>
+    <!-- HTML Footer -->
+    <?php include_once "inc/footer.php" ?>
+  </body>
 
-<?php include_once 'inc/footer.php'; ?>
+  <!-- <script>
+    function changeNumber(index, addNumber) {
+      const quantity = document.getElementById(`quantity-${index}`);
+      if (Number(quantity.value) + addNumber > 0)
+        quantity.value = Number(quantity.value) + addNumber;
+    }
+  </script> -->
+  <script>
+  function changeQuantity(button, change) {
+    const parent = button.closest("tr");
+    const input = parent.querySelector("input[name='quantity']");
+    let current = parseInt(input.value);
+    if (current + change > 0) {
+      input.value = current + change;
+      // Gửi form sau khi thay đổi số lượng
+      parent.querySelector("form").submit();
+    }
+  }
+</script>
+
+</html>

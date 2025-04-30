@@ -1,0 +1,24 @@
+.order-detail {
+  .payment {
+    padding: 0.25rem 1rem;
+    margin-top: 0.25rem;
+    border-radius: 1rem;
+    background-color: #fef2f2;
+    border: 1px solid #fca5a5;
+    color: #b91c1c;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    
+    &:hover {
+      border-color: transparent;
+      background: linear-gradient(to bottom, #dc2626, #9b1c1c);
+      color: white;
+    }
+  }
+
+  .current {
+    border-color: transparent;
+    background: linear-gradient(to bottom, #dc2626, #9b1c1c);
+    color: white;
+  }
+}

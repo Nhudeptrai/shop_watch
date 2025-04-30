@@ -43,5 +43,7 @@ class Session{
         session_destroy();
         header("Location: login.php");
     }
+
+    
 }
 ?>

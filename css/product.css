@@ -1,0 +1,6 @@
+.product-page {
+  .pagination .current {
+    background-color: #c10007;
+    color: white;
+  }
+}
