@@ -1,4 +1,4 @@
-﻿<?php
+﻿﻿<?php
 include_once '../lib/session.php';
 Session::checkSession();
 

@@ -19,63 +19,14 @@ if (isset($_GET['delid'])) {
 }
 ?>
 
+
 <!DOCTYPE html>
 <html lang="vi">
 <head>
     <meta http-equiv="content-type" content="text/html; charset=utf-8" />
     <title>Danh sách danh mục | ShopWatch Admin</title>
     <!-- Tailwind CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-    <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- SweetAlert2 -->
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <!-- jQuery -->
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <style>
-        /* Tùy chỉnh bảng */
-        .table-container {
-            overflow-x: auto;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-        th, td {
-            padding: 1rem;
-            text-align: left;
-        }
-        th {
-            background-color: #b91c1c;
-            color: white;
-        }
-        tr:hover {
-            background-color: #fef2f2;
-        }
-        /* Tùy chỉnh nút */
-        .btn {
-            transition: background-color 0.3s ease;
-        }
-        .btn-edit:hover {
-            background-color: #15803d;
-        }
-        .btn-delete:hover {
-            background-color: #b91c1c;
-        }
-        /* Responsive */
-        @media (max-width: 768px) {
-            .sidebar {
-                transform: translateX(-100%);
-                transition: transform 0.3s ease;
-            }
-            .sidebar.open {
-                transform: translateX(0);
-            }
-            .content {
-                margin-left: 0 !important;
-            }
-        }
-    </style>
+  
 </head>
 <body class="bg-gray-100 font-sans">
     <div class="flex flex-col min-h-screen">
@@ -145,6 +96,7 @@ if (isset($_GET['delid'])) {
                             </tbody>
                         </table>
                     </div>
+                       
                 </div>
             </main>
         </div>

@@ -65,19 +65,43 @@ class product
     }
 
 
-    public function show_product()
-    {
+    // public function show_product()
+    // {
 
+        
+    //     $query = "
+    //     SELECT tbl_product.*, tbl_category.catName, tbl_brand.brandName
+    //     FROM tbl_product INNER JOIN tbl_category ON tbl_product.catId = tbl_category.catId
+    //     INNER JOIN tbl_brand ON tbl_product.brandId = tbl_brand.brandId
+    //     order by tbl_product.productId desc";
+    //     // $query = "SELECT * FROM tbl_product ORDER BY productId DESC";
 
-        $query = "
-        SELECT tbl_product.*, tbl_category.catName, tbl_brand.brandName
-        FROM tbl_product INNER JOIN tbl_category ON tbl_product.catId = tbl_category.catId
-        INNER JOIN tbl_brand ON tbl_product.brandId = tbl_brand.brandId
-        order by tbl_product.productId desc";
-        // $query = "SELECT * FROM tbl_product ORDER BY productId DESC";
-
-        $result = $this->db->select($query);
-        return $result;
+    //     $result = $this->db->select($query);
+    //     return $result;
+    // }
+    public function show_product($page = 1, $limit = 6) {
+        // Tính offset
+        $offset = ($page - 1) * $limit;
+    
+        // Truy vấn sản phẩm cho trang hiện tại
+        $query = "SELECT p.*, c.catName, b.brandName
+                  FROM tbl_product p
+                  INNER JOIN tbl_category c ON p.catId = c.catId
+                  INNER JOIN tbl_brand b ON p.brandId = b.brandId
+                  ORDER BY p.productId DESC
+                  LIMIT ? OFFSET ?";
+        $params = [(int)$limit, (int)$offset];
+        $result = $this->db->select($query, $params);
+    
+        // Đếm tổng số sản phẩm
+        $count_query = "SELECT COUNT(*) as total FROM tbl_product";
+        $count_result = $this->db->select($count_query);
+        $total_products = $count_result ? $count_result->fetch_assoc()['total'] : 0;
+    
+        return [
+            'products' => $result,
+            'total_products' => $total_products
+        ];
     }
 
     public function update_product($data, $files, $id)

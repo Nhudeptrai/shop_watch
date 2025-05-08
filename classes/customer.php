@@ -180,11 +180,47 @@ class customer
         return false;
     }
 
-    public function show_customers()  //Lấy tất cả khách hàng từ tbl_customer, sắp xếp theo ID giảm dần.
-    {
-        $query = "SELECT * FROM tbl_customer ORDER BY id DESC";
-        $result = $this->db->select($query);
-        return $result;
+    // public function show_customers()  //Lấy tất cả khách hàng từ tbl_customer, sắp xếp theo ID giảm dần.
+    // {
+    //     $query = "SELECT * FROM tbl_customer ORDER BY id DESC";
+    //     $result = $this->db->select($query);
+    //     return $result;
+    // }
+    public function show_customers($search = '', $page = 1, $limit = 10) {
+        // Tính offset
+        $offset = ($page - 1) * $limit;
+    
+        // Truy vấn khách hàng cho trang hiện tại
+        $query = "SELECT id, username, email, fullname, phone, address, status 
+                  FROM tbl_customer";
+        $params = [];
+    
+        // Thêm điều kiện tìm kiếm
+        if (!empty($search)) {
+            $query .= " WHERE username LIKE ? OR email LIKE ? OR fullname LIKE ? OR phone LIKE ? OR address LIKE ?";
+            $search_param = '%' . $this->fm->validation($search) . '%';
+            $params = [$search_param, $search_param, $search_param, $search_param, $search_param];
+        }
+    
+        $query .= " ORDER BY id DESC LIMIT ? OFFSET ?";
+        $params[] = (int)$limit;
+        $params[] = (int)$offset;
+        $result = $this->db->select($query, $params);
+    
+        // Đếm tổng số khách hàng
+        $count_query = "SELECT COUNT(*) as total FROM tbl_customer";
+        $count_params = [];
+        if (!empty($search)) {
+            $count_query .= " WHERE username LIKE ? OR email LIKE ? OR fullname LIKE ? OR phone LIKE ? OR address LIKE ?";
+            $count_params = [$search_param, $search_param, $search_param, $search_param, $search_param];
+        }
+        $count_result = $this->db->select($count_query, $count_params);
+        $total_customers = $count_result ? $count_result->fetch_assoc()['total'] : 0;
+    
+        return [
+            'customers' => $result,
+            'total_customers' => $total_customers
+        ];
     }
 
     public function update_customer($data, $id)

@@ -201,7 +201,11 @@ class cart
     //     $get_inbox_cart = $this->db->select($query);
     //     return $get_inbox_cart;
     // }
-    public function get_inbox_cart($start_date = null, $end_date = null, $status = null) {
+    public function get_inbox_cart($start_date = null, $end_date = null, $status = null, $page = 1, $limit = 10) {
+        // Tính offset
+        $offset = ($page - 1) * $limit;
+    
+        // Truy vấn đơn hàng cho trang hiện tại
         $query = "SELECT o.id, o.orderDate, o.totalPrice, o.status, o.address, o.customerId, c.fullname as customerName 
                   FROM tbl_order o 
                   INNER JOIN tbl_customer c ON o.customerId = c.id";
@@ -223,8 +227,26 @@ class cart
             $query .= " WHERE " . implode(" AND ", $conditions);
         }
     
-        $query .= " ORDER BY o.orderDate DESC";
-        return $this->db->select($query, $params);
+        $query .= " ORDER BY o.orderDate DESC LIMIT ? OFFSET ?";
+        $params[] = (int)$limit;
+        $params[] = (int)$offset;
+        $result = $this->db->select($query, $params);
+    
+        // Đếm tổng số đơn hàng
+        $count_query = "SELECT COUNT(*) as total 
+                        FROM tbl_order o 
+                        INNER JOIN tbl_customer c ON o.customerId = c.id";
+        if (!empty($conditions)) {
+            $count_query .= " WHERE " . implode(" AND ", $conditions);
+        }
+        $count_params = array_slice($params, 0, count($params) - 2); // Loại bỏ LIMIT và OFFSET
+        $count_result = $this->db->select($count_query, $count_params);
+        $total_orders = $count_result ? $count_result->fetch_assoc()['total'] : 0;
+    
+        return [
+            'orders' => $result,
+            'total_orders' => $total_orders
+        ];
     }
     
 

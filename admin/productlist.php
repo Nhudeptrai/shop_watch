@@ -11,15 +11,27 @@ $pd = new product();
 $fm = new Format();
 $delPro = null;
 
+// Xử lý xóa sản phẩm
 if (isset($_GET['productid'])) {
     $id = $_GET['productid'];
     $delPro = $pd->del_product($id);
     if (strpos($delPro, 'thành công') !== false) {
-        $delPro = '<script>Sw絶火({icon: "success", title: "Thành công!", text: "Xóa sản phẩm thành công!", showConfirmButton: false, timer: 2000});</script>';
+        $delPro = '<script>Swal.fire({icon: "success", title: "Thành công!", text: "Xóa sản phẩm thành công!", showConfirmButton: false, timer: 2000});</script>';
     } else {
         $delPro = '<script>Swal.fire({icon: "error", title: "Lỗi!", text: "' . addslashes($delPro) . '", showConfirmButton: false, timer: 2000});</script>';
     }
 }
+
+// Xử lý phân trang
+$limit = 6; // Số sản phẩm mỗi trang
+$page = isset($_GET['page']) && is_numeric($_GET['page']) ? (int)$_GET['page'] : 1;
+if ($page < 1) $page = 1;
+
+// Lấy dữ liệu sản phẩm
+$product_data = $pd->show_product($page, $limit);
+$pdlist = $product_data['products'];
+$total_products = $product_data['total_products'];
+$total_pages = ceil($total_products / $limit);
 ?>
 
 <!DOCTYPE html>
@@ -72,6 +84,40 @@ if (isset($_GET['productid'])) {
         .btn-delete:hover {
             background-color: #b91c1c;
         }
+        /* Tùy chỉnh phân trang */
+        .pagination-container {
+            overflow-x: auto;
+            margin-top: 1.5rem;
+        }
+        .pagination {
+            display: flex;
+            gap: 0.5rem;
+            justify-content: center;
+            flex-wrap: nowrap;
+        }
+        .pagination a, .pagination span {
+            padding: 0.5rem 1rem;
+            border-radius: 0.375rem;
+            font-size: 0.875rem;
+            transition: background-color 0.3s ease;
+        }
+        .pagination a {
+            background-color: #b91c1c;
+            color: white;
+        }
+        .pagination a:hover {
+            background-color: #991b1b;
+        }
+        .pagination .active {
+            background-color: #991b1b;
+            color: white;
+            font-weight: bold;
+        }
+        .pagination .disabled {
+            background-color: #d1d5db;
+            color: #6b7280;
+            pointer-events: none;
+        }
         /* Responsive */
         @media (max-width: 768px) {
             .sidebar {
@@ -86,10 +132,15 @@ if (isset($_GET['productid'])) {
             }
             th, td {
                 font-size: 0.875rem;
+                padding: 0.5rem;
             }
             .product-image {
                 width: 60px;
                 height: 60px;
+            }
+            .pagination a, .pagination span {
+                padding: 0.4rem 0.8rem;
+                font-size: 0.75rem;
             }
         }
     </style>
@@ -107,7 +158,7 @@ if (isset($_GET['productid'])) {
             </div>
 
             <!-- Content -->
-            <main class="content flex-1 p-6 ">
+            <main class="content flex-1 p-6">
                 <div class="flex justify-between items-center mb-6">
                     <h2 class="text-3xl font-bold text-red-700">Danh sách sản phẩm</h2>
                     <a href="productadd.php" class="bg-red-700 text-white px-4 py-2 rounded-lg hover:bg-red-800">
@@ -137,9 +188,8 @@ if (isset($_GET['productid'])) {
                             </thead>
                             <tbody>
                                 <?php
-                                $pdlist = $pd->show_product();
                                 if ($pdlist && $pdlist->num_rows > 0) {
-                                    $i = 0;
+                                    $i = ($page - 1) * $limit; // Điều chỉnh STT theo trang
                                     while ($result = $pdlist->fetch_assoc()) {
                                         $i++;
                                 ?>
@@ -148,7 +198,7 @@ if (isset($_GET['productid'])) {
                                             <td><?php echo htmlspecialchars($result['productName']); ?></td>
                                             <td><?php echo number_format($result['price'], 0, ',', '.'); ?> VNĐ</td>
                                             <td>
-                                                <img src="uploads/<?php echo htmlspecialchars($result['image']); ?>" alt="<?php echo htmlspecialchars($result['productName']); ?>" class="product-image" />
+                                                <img src="Uploads/<?php echo htmlspecialchars($result['image']); ?>" alt="<?php echo htmlspecialchars($result['productName']); ?>" class="product-image" />
                                             </td>
                                             <td><?php echo htmlspecialchars($result['catName']); ?></td>
                                             <td><?php echo htmlspecialchars($result['brandName']); ?></td>
@@ -176,6 +226,42 @@ if (isset($_GET['productid'])) {
                             </tbody>
                         </table>
                     </div>
+
+                    <!-- Phân trang -->
+                    <?php if ($total_pages > 1) { ?>
+                        <div class="pagination-container">
+                            <div class="pagination">
+                                <!-- Nút Trước -->
+                                <a href="?page=<?php echo $page - 1; ?>" class="<?php echo $page <= 1 ? 'disabled' : ''; ?>">
+                                    <i class="fas fa-chevron-left"></i>
+                                </a>
+                                <!-- Số trang -->
+                                <?php
+                                $start_page = max(1, $page - 2);
+                                $end_page = min($total_pages, $page + 2);
+                                if ($start_page > 1) {
+                                    echo '<a href="?page=1">1</a>';
+                                    if ($start_page > 2) {
+                                        echo '<span>...</span>';
+                                    }
+                                }
+                                for ($i = $start_page; $i <= $end_page; $i++) {
+                                    echo '<a href="?page=' . $i . '" class="' . ($i == $page ? 'active' : '') . '">' . $i . '</a>';
+                                }
+                                if ($end_page < $total_pages) {
+                                    if ($end_page < $total_pages - 1) {
+                                        echo '<span>...</span>';
+                                    }
+                                    echo '<a href="?page=' . $total_pages . '">' . $total_pages . '</a>';
+                                }
+                                ?>
+                                <!-- Nút Sau -->
+                                <a href="?page=<?php echo $page + 1; ?>" class="<?php echo $page >= $total_pages ? 'disabled' : ''; ?>">
+                                    <i class="fas fa-chevron-right"></i>
+                                </a>
+                            </div>
+                        </div>
+                    <?php } ?>
                 </div>
             </main>
         </div>

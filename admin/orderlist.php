@@ -10,9 +10,9 @@ $ct = new cart();
 $fm = new Format();
 
 // Xử lý bộ lọc
-$start_date = '';
-$end_date = '';
-$status = 'Tất cả';
+$start_date = isset($_GET['start_date']) ? $_GET['start_date'] : '';
+$end_date = isset($_GET['end_date']) ? $_GET['end_date'] : '';
+$status = isset($_GET['status']) ? $_GET['status'] : 'Tất cả';
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['start_date']) && isset($_POST['end_date']) && isset($_POST['status'])) {
     $start_date = $_POST['start_date'];
     $end_date = $_POST['end_date'];
@@ -25,6 +25,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['start_date']) && isse
         $end_date = '';
     }
 }
+
+// Xử lý phân trang
+$limit = 6; // Số đơn hàng mỗi trang
+$page = isset($_GET['page']) && is_numeric($_GET['page']) ? (int)$_GET['page'] : 1;
+if ($page < 1) $page = 1;
+
+// Lấy dữ liệu đơn hàng
+$order_data = $ct->get_inbox_cart($start_date, $end_date, $status, $page, $limit);
+$get_inbox_cart = $order_data['orders'];
+$total_orders = $order_data['total_orders'];
+$total_pages = ceil($total_orders / $limit);
 ?>
 
 <!DOCTYPE html>
@@ -90,6 +101,40 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['start_date']) && isse
         .btn-filter:hover {
             background-color: #991b1b;
         }
+        /* Tùy chỉnh phân trang */
+        .pagination-container {
+            overflow-x: auto;
+            margin-top: 1.5rem;
+        }
+        .pagination {
+            display: flex;
+            gap: 0.5rem;
+            justify-content: center;
+            flex-wrap: nowrap;
+        }
+        .pagination a, .pagination span {
+            padding: 0.5rem 1rem;
+            border-radius: 0.375rem;
+            font-size: 0.875rem;
+            transition: background-color 0.3s ease;
+        }
+        .pagination a {
+            background-color: #b91c1c;
+            color: white;
+        }
+        .pagination a:hover {
+            background-color: #991b1b;
+        }
+        .pagination .active {
+            background-color: #991b1b;
+            color: white;
+            font-weight: bold;
+        }
+        .pagination .disabled {
+            background-color: #d1d5db;
+            color: #6b7280;
+            pointer-events: none;
+        }
         /* Responsive */
         @media (max-width: 768px) {
             .sidebar {
@@ -108,6 +153,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['start_date']) && isse
             }
             .truncate-address {
                 max-width: 150px;
+            }
+            .pagination a, .pagination span {
+                padding: 0.4rem 0.8rem;
+                font-size: 0.75rem;
             }
         }
     </style>
@@ -131,7 +180,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['start_date']) && isse
                 <!-- Form lọc -->
                 <div class="bg-white shadow-lg rounded-lg p-6 mb-6">
                     <h3 class="text-xl font-semibold text-gray-700 mb-4">Lọc đơn hàng</h3>
-                    <form id="filterForm" method="POST" class="flex flex-col sm:flex-row sm:items-end gap-4">
+                    <form id="filterForm" method="GET" class="flex flex-col sm:flex-row sm:items-end gap-4">
                         <div>
                             <label for="start_date" class="block text-gray-700 font-semibold mb-2">Ngày bắt đầu</label>
                             <input type="date" id="start_date" name="start_date" value="<?php echo htmlspecialchars($start_date); ?>" class="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-700" />
@@ -175,9 +224,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['start_date']) && isse
                             </thead>
                             <tbody>
                                 <?php
-                                $get_inbox_cart = $ct->get_inbox_cart($start_date, $end_date, $status);
                                 if ($get_inbox_cart && $get_inbox_cart->num_rows > 0) {
-                                    $i = 0;
+                                    $i = ($page - 1) * $limit; // Điều chỉnh STT theo trang
                                     while ($order = $get_inbox_cart->fetch_assoc()) {
                                         $i++;
                                         $customer_name = htmlspecialchars($order['customerName']);
@@ -230,6 +278,42 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['start_date']) && isse
                             </tbody>
                         </table>
                     </div>
+
+                    <!-- Phân trang -->
+                    <?php if ($total_pages > 1) { ?>
+                        <div class="pagination-container">
+                            <div class="pagination">
+                                <!-- Nút Trước -->
+                                <a href="?page=<?php echo $page - 1; ?>&start_date=<?php echo urlencode($start_date); ?>&end_date=<?php echo urlencode($end_date); ?>&status=<?php echo urlencode($status); ?>" class="<?php echo $page <= 1 ? 'disabled' : ''; ?>">
+                                    <i class="fas fa-chevron-left"></i>
+                                </a>
+                                <!-- Số trang -->
+                                <?php
+                                $start_page = max(1, $page - 2);
+                                $end_page = min($total_pages, $page + 2);
+                                if ($start_page > 1) {
+                                    echo '<a href="?page=1&start_date=' . urlencode($start_date) . '&end_date=' . urlencode($end_date) . '&status=' . urlencode($status) . '">1</a>';
+                                    if ($start_page > 2) {
+                                        echo '<span>...</span>';
+                                    }
+                                }
+                                for ($i = $start_page; $i <= $end_page; $i++) {
+                                    echo '<a href="?page=' . $i . '&start_date=' . urlencode($start_date) . '&end_date=' . urlencode($end_date) . '&status=' . urlencode($status) . '" class="' . ($i == $page ? 'active' : '') . '">' . $i . '</a>';
+                                }
+                                if ($end_page < $total_pages) {
+                                    if ($end_page < $total_pages - 1) {
+                                        echo '<span>...</span>';
+                                    }
+                                    echo '<a href="?page=' . $total_pages . '&start_date=' . urlencode($start_date) . '&end_date=' . urlencode($end_date) . '&status=' . urlencode($status) . '">' . $total_pages . '</a>';
+                                }
+                                ?>
+                                <!-- Nút Sau -->
+                                <a href="?page=<?php echo $page + 1; ?>&start_date=<?php echo urlencode($start_date); ?>&end_date=<?php echo urlencode($end_date); ?>&status=<?php echo urlencode($status); ?>" class="<?php echo $page >= $total_pages ? 'disabled' : ''; ?>">
+                                    <i class="fas fa-chevron-right"></i>
+                                </a>
+                            </div>
+                        </div>
+                    <?php } ?>
                 </div>
             </main>
         </div>

@@ -31,12 +31,12 @@ class category {
             }
         }
     }
-
     public function show_category(){
         $query = "SELECT * FROM tbl_category ORDER BY catId DESC";
         $result = $this->db->select($query);
         return $result;
     }
+ 
     
     public function update_category($catName, $id) {
         $catName = $this->fm->validation($catName);

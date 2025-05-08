@@ -38,6 +38,7 @@ class brand {
         return $result;
     }
     
+    
     public function update_brand($brandName, $id) {
         $brandName = $this->fm->validation($brandName);
         $brandName = mysqli_real_escape_string($this->db->link, $brandName);
