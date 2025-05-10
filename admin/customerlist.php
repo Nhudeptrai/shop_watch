@@ -11,7 +11,7 @@ if (isset($_GET['toggleid'])) {
     $id = $_GET['toggleid'];
     $toggleStatus = $customer->toggle_customer_status($id);
     if (strpos($toggleStatus, 'thành công') !== false) {
-        $toggleStatus = '<script>Swal.fire({icon: "success", title: "Thành công!", text: "' . addslashes($toggleStatus) . '", showConfirmButton: false, timer: 2000});</script>';
+        $toggleStatus = '<script>Swal.fire({icon: "success", title: "Thành công!", text: "' . addslashes($toggleStatus) .  ' </script>';
     } else {
         $toggleStatus = '<script>Swal.fire({icon: "error", title: "Lỗi!", text: "' . addslashes($toggleStatus) . '", showConfirmButton: false, timer: 2000});</script>';
     }
@@ -250,13 +250,13 @@ $total_pages = ceil($total_customers / $limit);
     <script>
         function confirmToggle(id, status) {
             Swal.fire({
-                title: `Bạn có chắc muốn ${status ? 'khóa' : 'mở'} tài khoản này?`,
-                text: `Tài khoản sẽ được ${status ? 'khóa' : 'mở'}!`,
+                title: `Bạn có chắc muốn ${status ? 'mở' : 'khóa'} tài khoản này?`,
+                text: `Tài khoản sẽ được ${status ? 'mở' : 'khóa'}!`,
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonColor: '#b91c1c',
                 cancelButtonColor: '#6b7280',
-                confirmButtonText: status ? 'Khóa' : 'Mở',
+                confirmButtonText: status ? 'mở' : 'khóa',
                 cancelButtonText: 'Hủy'
             }).then((result) => {
                 if (result.isConfirmed) {

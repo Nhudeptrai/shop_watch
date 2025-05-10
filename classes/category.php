@@ -12,6 +12,17 @@ class category {
         $this->fm = new Format();
     }   
 
+    private function check_duplicate_category($catName, $excludeId = null) {
+        $catName = mysqli_real_escape_string($this->db->link, $catName);
+        $query = "SELECT * FROM tbl_category WHERE catName = '$catName'";
+        if ($excludeId !== null) {
+            $excludeId = mysqli_real_escape_string($this->db->link, $excludeId);
+            $query .= " AND catId != '$excludeId'";
+        }
+        $result = $this->db->select($query);
+        return $result;
+    }
+
     public function insert_category($catName){
         $catName = $this->fm->validation($catName);
         $catName = mysqli_real_escape_string($this->db->link, $catName);
@@ -20,9 +31,15 @@ class category {
             $alert = "<span class='error'>Danh mục không được bỏ trống</span>";
             return $alert;
         } else {
+            // Kiểm tra tên danh mục trùng lặp
+            if ($this->check_duplicate_category($catName)) {
+                $alert = "<span class='error'>Tên danh mục đã tồn tại!</span>";
+                return $alert;
+            }
+
             $query = "INSERT INTO tbl_category(catName) VALUES('$catName')";
             $result = $this->db->insert($query);
-            if ($result == true) { // Sửa lỗi so sánh
+            if ($result == true) {
                 $alert = "<span class='success'>Thêm danh mục thành công!</span>";
                 return $alert;
             } else {
@@ -44,16 +61,22 @@ class category {
         $id = mysqli_real_escape_string($this->db->link, $id);
 
         if (empty($catName)) {
-            $alert = "<span class='error'>Danh mục không được bỏ trống</span>";
+            $alert = "Danh mục không được bỏ trống";
             return $alert;
         } else {
+            // Kiểm tra tên danh mục trùng lặp (trừ danh mục hiện tại)
+            if ($this->check_duplicate_category($catName, $id)) {
+                $alert = "Tên danh mục đã tồn tại!";
+                return $alert;
+            }
+
             $query = "UPDATE tbl_category SET catName = '$catName' WHERE catId = '$id'";
-            $result = $this->db->update($query); // Sửa lỗi insert -> update
+            $result = $this->db->update($query);
             if ($result == true) {
-                $alert = "<span class='success'>Cập nhật danh mục thành công!</span>";
+                $alert = "Cập nhật danh mục thành công!";
                 return $alert;
             } else {
-                $alert = "<span class='error'>Cập nhật thất bại</span>";
+                $alert = "Cập nhật thất bại";
                 return $alert;
             }
         }

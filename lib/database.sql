@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Máy chủ: 127.0.0.1
--- Thời gian đã tạo: Th5 10, 2025 lúc 06:08 AM
+-- Thời gian đã tạo: Th5 10, 2025 lúc 04:22 PM
 -- Phiên bản máy phục vụ: 10.4.32-MariaDB
 -- Phiên bản PHP: 8.2.12
 
@@ -99,7 +99,8 @@ INSERT INTO `tbl_category` (`catId`, `catName`) VALUES
 (158, 'Đồng hồ nam'),
 (159, 'Đồng hồ nữ'),
 (160, 'Đồng hồ bạc'),
-(161, 'Đồng hồ mạ vàng');
+(161, 'Đồng hồ vàng'),
+(167, 'Đồng hồ mạ vàng');
 
 -- --------------------------------------------------------
 
@@ -153,7 +154,7 @@ CREATE TABLE `tbl_order_details` (
   `orderId` int(11) NOT NULL,
   `productId` int(11) NOT NULL,
   `quantity` int(11) NOT NULL,
-  `sessionId` int(11) NOT NULL,
+  `sessionId` varchar(255) NOT NULL,
   `customerId` int(11) NOT NULL,
   `price` float NOT NULL,
   `productName` varchar(255) NOT NULL,
@@ -239,11 +240,11 @@ INSERT INTO `tbl_product` (`productId`, `productName`, `catId`, `brandId`, `prod
 (138, 'Đồng hồ 138', 158, 10, 'Wristwatches evolved in the 17th century, starting with spring-powered clocks, which appeared as early as the 14th century. For most of its history, the wristwatch was a mechanical device, driven by a clockwork mechanism, wound around a mainspring, and kept time with an oscillating balance wheel.', 0, '4981000', '55368070fc.png', 0),
 (139, 'Đồng hồ 139', 159, 10, 'Wristwatches evolved in the 17th century, starting with spring-powered clocks, which appeared as early as the 14th century. For most of its history, the wristwatch was a mechanical device, driven by a clockwork mechanism, wound around a mainspring, and kept time with an oscillating balance wheel.', 0, '5832000', 'c55372addc.png', 0),
 (140, 'Đồng hồ 140', 159, 10, 'Wristwatches evolved in the 17th century, starting with spring-powered clocks, which appeared as early as the 14th century. For most of its history, the wristwatch was a mechanical device, driven by a clockwork mechanism, wound around a mainspring, and kept time with an oscillating balance wheel.', 0, '7826000', '1211a16801.png', 0),
-(141, 'Đồng hồ 141', 159, 10, 'Wristwatches evolved in the 17th century, starting with spring-powered clocks, which appeared as early as the 14th century. For most of its history, the wristwatch was a mechanical device, driven by a clockwork mechanism, wound around a mainspring, and kept time with an oscillating balance wheel.', 0, '8500000', '55c5c49857.png', 0),
-(142, 'Đồng hồ 142', 159, 10, 'Wristwatches evolved in the 17th century, starting with spring-powered clocks, which appeared as early as the 14th century. For most of its history, the wristwatch was a mechanical device, driven by a clockwork mechanism, wound around a mainspring, and kept time with an oscillating balance wheel.', 0, '4036000', '135f66e06d.png', 0),
-(143, 'a2', 159, 10, 'Wristwatches evolved in the 17th century, starting with spring-powered clocks, which appeared as early as the 14th century. For most of its history, the wristwatch was a mechanical device, driven by a clockwork mechanism, wound around a mainspring, and kept time with an oscillating balance wheel.', 0, '4901000', 'ad560ea3e4.png', 0),
-(144, 'a1', 159, 10, 'Wristwatches evolved in the 17th century, starting with spring-powered clocks, which appeared as early as the 14th century. For most of its history, the wristwatch was a mechanical device, driven by a clockwork mechanism, wound around a mainspring, and kept time with an oscillating balance wheel.', 0, '9258000', '798d9bdc5e.png', 0),
-(145, 'aa', 159, 8, 'aaa', 1, '11', '32b5f8e2cf.png', 0);
+(141, 'Đồng hồ 141', 159, 10, 'Wristwatches evolved in the 17th century, starting with spring-powered clocks, which appeared as early as the 14th century. For most of its history, the wristwatch was a mechanical device, driven by a clockwork mechanism, wound around a mainspring, and kept time with an oscillating balance wheel.', 0, '8500000', '55c5c49857.png', 1),
+(142, 'Đồng hồ 142', 159, 10, 'Wristwatches evolved in the 17th century, starting with spring-powered clocks, which appeared as early as the 14th century. For most of its history, the wristwatch was a mechanical device, driven by a clockwork mechanism, wound around a mainspring, and kept time with an oscillating balance wheel.', 0, '4036000', '135f66e06d.png', 1),
+(143, 'a2', 159, 10, 'Wristwatches evolved in the 17th century, starting with spring-powered clocks, which appeared as early as the 14th century. For most of its history, the wristwatch was a mechanical device, driven by a clockwork mechanism, wound around a mainspring, and kept time with an oscillating balance wheel.', 0, '4901000', 'ad560ea3e4.png', 1),
+(144, 'a1', 159, 10, 'Wristwatches evolved in the 17th century, starting with spring-powered clocks, which appeared as early as the 14th century. For most of its history, the wristwatch was a mechanical device, driven by a clockwork mechanism, wound around a mainspring, and kept time with an oscillating balance wheel.', 0, '9258000', '798d9bdc5e.png', 1),
+(145, 'aa', 159, 8, 'aaa', 1, '11', '32b5f8e2cf.png', 1);
 
 --
 -- Chỉ mục cho các bảng đã đổ
@@ -285,14 +286,16 @@ ALTER TABLE `tbl_customer`
 -- Chỉ mục cho bảng `tbl_order`
 --
 ALTER TABLE `tbl_order`
-  ADD PRIMARY KEY (`id`);
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `fk_order_customerId` (`customerId`);
 
 --
 -- Chỉ mục cho bảng `tbl_order_details`
 --
 ALTER TABLE `tbl_order_details`
   ADD PRIMARY KEY (`id`),
-  ADD KEY `productId` (`productId`);
+  ADD KEY `productId` (`productId`),
+  ADD KEY `tbl_order_details_ibfk_1` (`orderId`);
 
 --
 -- Chỉ mục cho bảng `tbl_product`
@@ -328,7 +331,7 @@ ALTER TABLE `tbl_cart`
 -- AUTO_INCREMENT cho bảng `tbl_category`
 --
 ALTER TABLE `tbl_category`
-  MODIFY `catId` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=164;
+  MODIFY `catId` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=168;
 
 --
 -- AUTO_INCREMENT cho bảng `tbl_customer`
@@ -366,10 +369,16 @@ ALTER TABLE `tbl_cart`
   ADD CONSTRAINT `tbl_cart_ibfk_2` FOREIGN KEY (`productId`) REFERENCES `tbl_product` (`productId`);
 
 --
+-- Các ràng buộc cho bảng `tbl_order`
+--
+ALTER TABLE `tbl_order`
+  ADD CONSTRAINT `fk_order_customerId` FOREIGN KEY (`customerId`) REFERENCES `tbl_customer` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
 -- Các ràng buộc cho bảng `tbl_order_details`
 --
 ALTER TABLE `tbl_order_details`
-  ADD CONSTRAINT `tbl_order_details_ibfk_1` FOREIGN KEY (`productId`) REFERENCES `tbl_product` (`productId`);
+  ADD CONSTRAINT `tbl_order_details_ibfk_1` FOREIGN KEY (`orderId`) REFERENCES `tbl_order` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Các ràng buộc cho bảng `tbl_product`

@@ -121,18 +121,18 @@ class cart
             $query = "DELETE FROM tbl_cart WHERE cartId = '$cartId'";
             $result = $this->db->delete($query);
             if ($result) {
-                return "<span class='success'>Sản phẩm đã được xóa khỏi giỏ hàng</span>";
+                return "Sản phẩm đã được xóa khỏi giỏ hàng";
             } else {
-                return "<span class='error'>Xóa sản phẩm thất bại</span>";
+                return "Xóa sản phẩm thất bại";
             }
         } else {
             // Cập nhật số lượng
             $query = "UPDATE tbl_cart SET quantity = '$quantity' WHERE cartId = '$cartId'";
             $result = $this->db->update($query);
             if ($result) {
-                return "<span class='success'>Cập nhật giỏ hàng thành công</span>";
+                return "Cập nhật giỏ hàng thành công";
             } else {
-                return "<span class='error'>Cập nhật giỏ hàng không thành công</span>";
+                return "Cập nhật giỏ hàng không thành công";
             }
         }
     }

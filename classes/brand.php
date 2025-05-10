@@ -20,9 +20,18 @@ class brand {
             $alert = "<span class='error'>Thương hiệu không được bỏ trống</span>";
             return $alert;
         } else {
+            // Kiểm tra tên thương hiệu đã tồn tại chưa
+            $check_query = "SELECT * FROM tbl_brand WHERE brandName = '$brandName'";
+            $check_result = $this->db->select($check_query);
+            
+            if ($check_result) {
+                $alert = "<span class='error'>Thương hiệu này đã tồn tại!</span>";
+                return $alert;
+            }
+
             $query = "INSERT INTO tbl_brand(brandName) VALUES('$brandName')";
             $result = $this->db->insert($query);
-            if ($result == true) { // Sửa lỗi so sánh
+            if ($result == true) {
                 $alert = "<span class='success'>Thêm thương hiệu thành công!</span>";
                 return $alert;
             } else {
@@ -48,13 +57,22 @@ class brand {
             $alert = "Thương hiệu không được bỏ trống";
             return $alert;
         } else {
+            // Kiểm tra tên thương hiệu đã tồn tại chưa (trừ thương hiệu hiện tại)
+            $check_query = "SELECT * FROM tbl_brand WHERE brandName = '$brandName' AND brandId != '$id'";
+            $check_result = $this->db->select($check_query);
+            
+            if ($check_result) {
+                $alert = "Thương hiệu này đã tồn tại!";
+                return $alert;
+            }
+
             $query = "UPDATE tbl_brand SET brandName = '$brandName' WHERE brandId = '$id'";
-            $result = $this->db->update($query); // Sửa lỗi insert -> update
+            $result = $this->db->update($query);
             if ($result == true) {
                 $alert = "Cập nhật thương hiệu thành công!";
                 return $alert;
             } else {
-                $alert = ">Cập nhật thất bại";
+                $alert = "Cập nhật thất bại";
                 return $alert;
             }
         }

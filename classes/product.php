@@ -36,14 +36,14 @@ class product
         $uploaded_image = "uploads/" . $unique_image;
 
         if (!in_array($file_ext, $permited)) {
-            return "<span class='error'>Bạn chỉ có thể upload: " . implode(', ', $permited) . "</span>";
+            return "Bạn chỉ có thể upload: " . implode(', ', $permited) . "</span>";
         }
 
        
         // Kiểm tra có đầy đủ các trường không
 
         if ($productName == "" || $brand == "" || $category == "" || $product_desc == "" || $price == "" || $type_pd == "" || $file_name == "") {
-            $alert = "<span class='error'>Các trường không được rỗng</span>";
+            $alert = "Các trường không được rỗng";
             return $alert;
         }
         else {
@@ -54,10 +54,10 @@ class product
             $result = $this->db->insert($query);
 
             if ($result) {
-                $alert = "<span class='success'>Thêm sản phẩm thành công!</span>";
+                $alert = "Thêm sản phẩm thành công!";
                return $alert;
             } else {
-                $alert = "<span class='error'>Thêm sản phẩm không thành công</span>";
+                $alert = "Thêm sản phẩm không thành công";
                 return $alert;
             }
         }
