@@ -1,25 +1,89 @@
-input[type="text"], input[type="email"], input[type="password"] {
-    transition: border-color 0.3s ease;
+/* custormerlist */
+/* Tùy chỉnh bảng */
+.table-container {
+  overflow-x: auto;
 }
-input[type="text"]:focus, input[type="email"]:focus, input[type="password"]:focus {
-    border-color: #b91c1c;
-    outline: none;
+table {
+  width: 100%;
+  border-collapse: collapse;
 }
-input[type="submit"] {
-    transition: background-color 0.3s ease;
+th,
+td {
+  padding: 0.75rem;
+  text-align: left;
 }
-input[type="submit"]:hover {
-    background-color: #991b1b;
+th {
+  background-color: #b91c1c;
+  color: white;
 }
+tr:hover {
+  background-color: #fef2f2;
+}
+
+/* Responsive */
 @media (max-width: 768px) {
-    .sidebar {
-        transform: translateX(-100%);
-        transition: transform 0.3s ease;
-    }
-    .sidebar.open {
-        transform: translateX(0);
-    }
-    .content {
-        margin-left: 0 !important;
-    }
+  .sidebar {
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
+  }
+  .sidebar.open {
+    transform: translateX(0);
+  }
+  .content {
+    margin-left: 0 !important;
+  }
+  th,
+  td {
+    font-size: 0.875rem;
+    padding: 0.5rem;
+  }
+  .search-form {
+    flex-direction: column;
+    max-width: 100%;
+  }
+  .search-input,
+  .search-button {
+    width: 100%;
+  }
+  .pagination a,
+  .pagination span {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.75rem;
+  }
 }
+/* Tùy chỉnh phân trang */
+.pagination-container {
+  overflow-x: auto;
+  margin-top: 1.5rem;
+}
+.pagination {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: center;
+  flex-wrap: nowrap;
+}
+.pagination a,
+.pagination span {
+  padding: 0.5rem 1rem;
+  border-radius: 0.375rem;
+  font-size: 0.875rem;
+  transition: background-color 0.3s ease;
+}
+.pagination a {
+  background-color: #b91c1c;
+  color: white;
+}
+.pagination a:hover {
+  background-color: #991b1b;
+}
+.pagination .active {
+  background-color: #991b1b;
+  color: white;
+  font-weight: bold;
+}
+.pagination .disabled {
+  background-color: #d1d5db;
+  color: #6b7280;
+  pointer-events: none;
+}
+

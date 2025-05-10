@@ -63,10 +63,10 @@ class category {
         $query = "DELETE FROM tbl_category WHERE catId = '$id'"; // Sửa lỗi DELETE *
         $result = $this->db->delete($query);
         if ($result) {
-            $alert = "<span class='success'>Xoá danh mục thành công!</span>";
+            $alert = "Xoá danh mục thành công!";
             return $alert;
         } else {
-            $alert = "<span class='error'>Xóa thất bại</span>";
+            $alert = "Xóa thất bại vì danh mục này đã có sản phẩm";
             return $alert;
         }
     }

@@ -177,14 +177,37 @@ class product
         $query = "DELETE FROM tbl_product WHERE productId = '$id'"; // Sửa lỗi DELETE *
         $result = $this->db->delete($query);
         if ($result) {
-            $alert = "<span class='success'>Xoá sản phẩm thành công!</span>";
+            $alert = "Xoá sản phẩm thành công!";
             return $alert;
         } else {
-            $alert = "<span class='error'>Xóa sản phẩm thất bại</span>";
-            return $alert;
+            $query = "UPDATE tbl_product SET isActive = false WHERE productId = '$id'";
+            $result = $this->db->update($query);
+
+            if ($result) {
+                $alert = "Khóa sản phẩm thành công!";
+                return $alert;
+            }
+            else {
+                $alert = "Không thể xóa vì sản phẩm này đã có đơn hàng";
+                return $alert;
+            }
         }
     }
 
+    public function unlock_product($id)
+    {
+        $query = "UPDATE tbl_product SET isActive = true WHERE productId = '$id'";
+        $result = $this->db->update($query);
+
+        if ($result) {
+            $alert = "Mở khóa sản phẩm thành công!";
+            return $alert;
+        }
+        else {
+            $alert = "Mở khóa sản phẩm thất bại!";
+            return $alert;
+        }
+    }
     public function getproductbyId($id)
     {
         $query = "SELECT * FROM tbl_product WHERE productId = '$id'";
@@ -231,25 +254,7 @@ class product
         $result = $this->db->select($query);
         return $result;
     }
-    /*public function search_product_by_name($keyword){
-        $keyword = $this->db->link->real_escape_string($keyword);
 
-        $query = "SELECT * FROM tbl_product WHERE productName LIKE '%$keyword%' ORDER BY productId DESC";
-        $result = $this->db->select($query);
-        return $result;
-    }
-    public function get_product_by_price_range($min, $max) {
-        $min = mysqli_real_escape_string($this->db->link, $min);
-        $max = mysqli_real_escape_string($this->db->link, $max);
-        $query = "SELECT * FROM tbl_product WHERE price BETWEEN '$min' AND '$max' ORDER BY price ASC";
-        return $this->db->select($query);
-    }
-    public function search_product_by_name_and_price($name, $min, $max) {
-        $name = mysqli_real_escape_string($this->db->link, $name);
-        $query = "SELECT * FROM tbl_product WHERE productName LIKE '%$name%' AND price BETWEEN $min AND $max";
-        $result = $this->db->select($query);
-        return $result;
-    }*/
 }
 // End backend
 

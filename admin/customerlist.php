@@ -22,8 +22,9 @@ $search = isset($_GET['search']) ? trim($_GET['search']) : '';
 
 // Xử lý phân trang
 $limit = 10; // Số khách hàng mỗi trang
-$page = isset($_GET['page']) && is_numeric($_GET['page']) ? (int)$_GET['page'] : 1;
-if ($page < 1) $page = 1;
+$page = isset($_GET['page']) && is_numeric($_GET['page']) ? (int) $_GET['page'] : 1;
+if ($page < 1)
+    $page = 1;
 
 // Lấy dữ liệu khách hàng
 $customer_data = $customer->show_customers($search, $page, $limit);
@@ -34,6 +35,7 @@ $total_pages = ceil($total_customers / $limit);
 
 <!DOCTYPE html>
 <html lang="vi">
+
 <head>
     <meta http-equiv="content-type" content="text/html; charset=utf-8" />
     <title>Danh sách khách hàng | ShopWatch Admin</title>
@@ -42,38 +44,22 @@ $total_pages = ceil($total_customers / $limit);
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- SweetAlert2 -->
+    <link rel="stylesheet" href="css/customer.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <!-- jQuery -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <style>
-        /* Tùy chỉnh bảng */
-        .table-container {
-            overflow-x: auto;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-        th, td {
-            padding: 0.75rem;
-            text-align: left;
-        }
-        th {
-            background-color: #b91c1c;
-            color: white;
-        }
-        tr:hover {
-            background-color: #fef2f2;
-        }
         /* Tùy chỉnh tìm kiếm */
         .search-container {
             margin-bottom: 1.5rem;
         }
+
         .search-form {
             display: flex;
             gap: 0.5rem;
             max-width: 500px;
         }
+
         .search-input {
             flex-grow: 1;
             padding: 0.5rem;
@@ -81,10 +67,12 @@ $total_pages = ceil($total_customers / $limit);
             border-radius: 0.375rem;
             transition: border-color 0.3s ease;
         }
+
         .search-input:focus {
             border-color: #b91c1c;
             outline: none;
         }
+
         .search-button {
             background-color: #b91c1c;
             color: white;
@@ -92,83 +80,30 @@ $total_pages = ceil($total_customers / $limit);
             border-radius: 0.375rem;
             transition: background-color 0.3s ease;
         }
+
         .search-button:hover {
             background-color: #991b1b;
         }
+
         /* Tùy chỉnh nút */
         .btn {
             transition: background-color 0.3s ease;
         }
+
         .btn-edit:hover {
             background-color: #15803d;
         }
+
         .btn-toggle:hover {
             background-color: #b91c1c;
         }
-        /* Tùy chỉnh phân trang */
-        .pagination-container {
-            overflow-x: auto;
-            margin-top: 1.5rem;
-        }
-        .pagination {
-            display: flex;
-            gap: 0.5rem;
-            justify-content: center;
-            flex-wrap: nowrap;
-        }
-        .pagination a, .pagination span {
-            padding: 0.5rem 1rem;
-            border-radius: 0.375rem;
-            font-size: 0.875rem;
-            transition: background-color 0.3s ease;
-        }
-        .pagination a {
-            background-color: #b91c1c;
-            color: white;
-        }
-        .pagination a:hover {
-            background-color: #991b1b;
-        }
-        .pagination .active {
-            background-color: #991b1b;
-            color: white;
-            font-weight: bold;
-        }
-        .pagination .disabled {
-            background-color: #d1d5db;
-            color: #6b7280;
-            pointer-events: none;
-        }
-        /* Responsive */
-        @media (max-width: 768px) {
-            .sidebar {
-                transform: translateX(-100%);
-                transition: transform 0.3s ease;
-            }
-            .sidebar.open {
-                transform: translateX(0);
-            }
-            .content {
-                margin-left: 0 !important;
-            }
-            th, td {
-                font-size: 0.875rem;
-                padding: 0.5rem;
-            }
-            .search-form {
-                flex-direction: column;
-                max-width: 100%;
-            }
-            .search-input, .search-button {
-                width: 100%;
-            }
-            .pagination a, .pagination span {
-                padding: 0.4rem 0.8rem;
-                font-size: 0.75rem;
-            }
+
+        .w-24 {
+            width: 8rem !important;
         }
     </style>
 </head>
+
 <body class="bg-gray-100 font-sans">
     <div class="flex flex-col min-h-screen">
         <!-- Header -->
@@ -193,7 +128,9 @@ $total_pages = ceil($total_customers / $limit);
                     <!-- Thanh tìm kiếm -->
                     <div class="search-container">
                         <form method="GET" class="search-form">
-                            <input type="text" name="search" class="search-input" placeholder="Tìm kiếm theo tên, địa chỉ, sđt..." value="<?php echo htmlspecialchars($search); ?>">
+                            <input type="text" name="search" class="search-input"
+                                placeholder="Tìm kiếm theo tên, địa chỉ, sđt..."
+                                value="<?php echo htmlspecialchars($search); ?>">
                             <button type="submit" class="search-button">
                                 <i class="fas fa-search mr-2"></i> Tìm kiếm
                             </button>
@@ -224,7 +161,7 @@ $total_pages = ceil($total_customers / $limit);
                                     $i = ($page - 1) * $limit; // Điều chỉnh STT
                                     while ($result = $customers->fetch_assoc()) {
                                         $i++;
-                                ?>
+                                        ?>
                                         <tr>
                                             <td><?php echo $result['id']; ?></td>
                                             <td><?php echo htmlspecialchars($result['username']); ?></td>
@@ -236,24 +173,27 @@ $total_pages = ceil($total_customers / $limit);
                                                 <?php echo $result['status'] ? '<span class="text-green-600">Active</span>' : '<span class="text-red-600">Inactive</span>'; ?>
                                             </td>
                                             <td class="text-center">
-                                                <a href="customeredit.php?customerid=<?php echo $result['id']; ?>" class="btn btn-edit bg-green-600 text-white px-2 py-1 rounded-lg mr-2">
+                                                <a href="customeredit.php?customerid=<?php echo $result['id']; ?>"
+                                                    class="btn btn-edit bg-green-600 text-white px-2 py-1 rounded-lg mr-2">
                                                     <i class="fas fa-edit"></i> Sửa
                                                 </a>
-                                                <button onclick="confirmToggle(<?php echo $result['id']; ?>, <?php echo $result['status'] ? 0 : 1; ?>)" class="btn btn-toggle bg-red-600 text-white px-2 py-1 rounded-lg">
+                                                <button
+                                                    onclick="confirmToggle(<?php echo $result['id']; ?>, <?php echo $result['status'] ? 0 : 1; ?>)"
+                                                    class="btn btn-toggle bg-red-600 text-white px-2 py-1 rounded-lg">
                                                     <i class="fas fa-lock"></i> <?php echo $result['status'] ? 'Khóa' : 'Mở'; ?>
                                                 </button>
                                             </td>
                                         </tr>
-                                <?php
+                                        <?php
                                     }
                                 } else {
-                                ?>
+                                    ?>
                                     <tr>
                                         <td colspan="8" class="text-center py-4 text-gray-600">
                                             <?php echo $search ? 'Không tìm thấy khách hàng phù hợp' : 'Không có khách hàng nào'; ?>
                                         </td>
                                     </tr>
-                                <?php
+                                    <?php
                                 }
                                 ?>
                             </tbody>
@@ -264,7 +204,8 @@ $total_pages = ceil($total_customers / $limit);
                         <div class="pagination-container">
                             <div class="pagination">
                                 <!-- Nút Trước -->
-                                <a href="?page=<?php echo $page - 1; ?>&search=<?php echo urlencode($search); ?>" class="<?php echo $page <= 1 ? 'disabled' : ''; ?>">
+                                <a href="?page=<?php echo $page - 1; ?>&search=<?php echo urlencode($search); ?>"
+                                    class="<?php echo $page <= 1 ? 'disabled' : ''; ?>">
                                     <i class="fas fa-chevron-left"></i>
                                 </a>
                                 <!-- Số trang -->
@@ -288,7 +229,8 @@ $total_pages = ceil($total_customers / $limit);
                                 }
                                 ?>
                                 <!-- Nút Sau -->
-                                <a href="?page=<?php echo $page + 1; ?>&search=<?php echo urlencode($search); ?>" class="<?php echo $page >= $total_pages ? 'disabled' : ''; ?>">
+                                <a href="?page=<?php echo $page + 1; ?>&search=<?php echo urlencode($search); ?>"
+                                    class="<?php echo $page >= $total_pages ? 'disabled' : ''; ?>">
                                     <i class="fas fa-chevron-right"></i>
                                 </a>
                             </div>
@@ -323,9 +265,10 @@ $total_pages = ceil($total_customers / $limit);
             });
         }
 
-        $('#toggleSidebar').click(function() {
+        $('#toggleSidebar').click(function () {
             $('.sidebar').toggleClass('open');
         });
     </script>
 </body>
+
 </html>

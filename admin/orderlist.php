@@ -13,6 +13,8 @@ $fm = new Format();
 $start_date = isset($_GET['start_date']) ? $_GET['start_date'] : '';
 $end_date = isset($_GET['end_date']) ? $_GET['end_date'] : '';
 $status = isset($_GET['status']) ? $_GET['status'] : 'Tất cả';
+$address = isset($_GET['address']) ? $_GET['address'] : '';
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['start_date']) && isset($_POST['end_date']) && isset($_POST['status'])) {
     $start_date = $_POST['start_date'];
     $end_date = $_POST['end_date'];
@@ -32,7 +34,7 @@ $page = isset($_GET['page']) && is_numeric($_GET['page']) ? (int)$_GET['page'] :
 if ($page < 1) $page = 1;
 
 // Lấy dữ liệu đơn hàng
-$order_data = $ct->get_inbox_cart($start_date, $end_date, $status, $page, $limit);
+$order_data = $ct->get_inbox_cart($start_date, $end_date, $status, $address, $page, $limit);
 $get_inbox_cart = $order_data['orders'];
 $total_orders = $order_data['total_orders'];
 $total_pages = ceil($total_orders / $limit);
@@ -199,6 +201,12 @@ $total_pages = ceil($total_orders / $limit);
                                 <option value="Đã hủy" <?php echo $status == 'Đã hủy' ? 'selected' : ''; ?>>Đã hủy</option>
                             </select>
                         </div>
+                        
+                        <div>
+                            <label for="address" class="block text-gray-700 font-semibold mb-2">Địa chỉ</label>
+                            <input type="address" id="address" name="address" value="<?php echo htmlspecialchars($address); ?>" class="w-72 p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-700 focus:outline-none" />
+                        </div>
+
                         <button type="submit" class="btn btn-filter bg-red-700 text-white px-4 py-2 rounded-lg hover:bg-red-800 sm:mt-0">
                             <i class="fas fa-filter mr-2"></i> Lọc
                         </button>

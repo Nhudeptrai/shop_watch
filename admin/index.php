@@ -58,34 +58,50 @@ if ($order_status_result) {
 $top_customers = [];
 $start_date = '';
 $end_date = '';
+
+// Hàm kiểm tra ngày hợp lệ
+function checkValidDate($start_date, $end_date) {
+    if (empty($start_date) || empty($end_date)) return true;
+    return strtotime($start_date) <= strtotime($end_date);
+}
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['start_date']) && isset($_POST['end_date'])) {
     $start_date = $_POST['start_date'];
     $end_date = $_POST['end_date'];
+}
 
-    // Kiểm tra ngày hợp lệ
-    if (!empty($start_date) && !empty($end_date) && strtotime($start_date) <= strtotime($end_date)) {
-        $query = "SELECT c.id, c.fullname, SUM(o.totalPrice) as total_spent FROM tbl_customer c INNER JOIN tbl_order o ON c.id = o.customerId WHERE o.orderDate BETWEEN ? AND ? GROUP BY c.id, c.fullname ORDER BY total_spent DESC LIMIT 5";
-        $result = $db->select($query, [$start_date . ' 00:00:00', $end_date . ' 23:59:59']);
+// Kiểm tra ngày hợp lệ
+if (checkValidDate($start_date, $end_date)) {
+    $query = "SELECT c.id, c.fullname, SUM(o.totalPrice) as total_spent FROM tbl_customer c INNER JOIN tbl_order o ON c.id = o.customerId WHERE o.status in ('Đã xác nhận', 'Đã hoàn thành')";
+    $date_where = "";
+    if (!empty($start_date)) $date_where .= "AND o.orderDate >= '" . $start_date . " 00:00:00' ";
+    if (!empty($end_date)) $date_where .= "AND o.orderDate <= '" . $end_date . " 23:59:59' ";
 
-        if ($result) {
-            while ($row = $result->fetch_assoc()) {
-                // Lấy danh sách đơn hàng của khách hàng
-                $order_query = "SELECT id, orderDate, totalPrice, status FROM tbl_order WHERE customerId = ? AND orderDate BETWEEN ? AND ? ORDER BY orderDate DESC";
-                $order_result = $db->select($order_query, [$row['id'], $start_date . ' 00:00:00', $end_date . ' 23:59:59']);
-                $orders = [];
-                if ($order_result) {
-                    while ($order = $order_result->fetch_assoc()) {
-                        $orders[] = $order;
-                    }
+    $query = $query . $date_where . "GROUP BY c.id, c.fullname ORDER BY total_spent DESC LIMIT 5";
+    $result = $db->select($query);
+
+    if ($result) {
+        while ($row = $result->fetch_assoc()) {
+            // Lấy danh sách đơn hàng của khách hàng
+            $order_query = "SELECT id, orderDate, totalPrice, status FROM tbl_order WHERE customerId = ? AND status in ('Đã xác nhận', 'Đã hoàn thành')";
+            $order_date_where = "";
+            if (!empty($start_date)) $order_date_where .= "AND orderDate >= '" . $start_date . " 00:00:00' ";
+            if (!empty($end_date)) $order_date_where .= "AND orderDate <= '" . $end_date . " 23:59:59' ";
+
+            $order_query = $order_query . $order_date_where . "ORDER BY orderDate DESC";
+            $order_result = $db->select($order_query, [$row['id']]);
+            $orders = [];
+            if ($order_result) {
+                while ($order = $order_result->fetch_assoc()) {
+                    $orders[] = $order;
                 }
-                $row['orders'] = $orders;
-                $top_customers[] = $row;
             }
+            $row['orders'] = $orders;
+            $top_customers[] = $row;
         }
-    } else {
-        echo '<script>Swal.fire({icon: "error", title: "Lỗi!", text: "Khoảng thời gian không hợp lệ!", showConfirmButton: false, timer: 2000});</script>';
     }
 }
+else echo '<script>Swal.fire({icon: "error", title: "Lỗi!", text: "Khoảng thời gian không hợp lệ!", showConfirmButton: false, timer: 2000});</script>';
 ?>
 
 <!DOCTYPE html>
@@ -209,14 +225,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['start_date']) && isse
                             <table>
                                 <thead>
                                     <tr>
+                                        <th>STT</th>
                                         <th>Tên khách hàng</th>
                                         <th>Tổng tiền mua</th>
                                         <th>Đơn hàng</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <?php foreach ($top_customers as $customer) { ?>
+                                    <?php $i = 1; foreach ($top_customers as $customer) { ?>
                                         <tr>
+                                            <td><?= $i++ ?></td>
                                             <td><?php echo htmlspecialchars($customer['fullname']); ?></td>
                                             <td><?php echo number_format($customer['total_spent'], 0, ',', '.') . ' VNĐ'; ?></td>
                                             <td>
@@ -344,16 +362,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['start_date']) && isse
             const startDate = $('#start_date').val();
             const endDate = $('#end_date').val();
 
-            if (!startDate || !endDate) {
-                e.preventDefault();
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Lỗi!',
-                    text: 'Vui lòng chọn cả ngày bắt đầu và ngày kết thúc!',
-                    showConfirmButton: false,
-                    timer: 2000
-                });
-            } else if (new Date(startDate) > new Date(endDate)) {
+            if (new Date(startDate) > new Date(endDate)) {
                 e.preventDefault();
                 Swal.fire({
                     icon: 'error',

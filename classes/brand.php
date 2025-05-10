@@ -45,16 +45,16 @@ class brand {
         $id = mysqli_real_escape_string($this->db->link, $id);
 
         if (empty($brandName)) {
-            $alert = "<span class='error'>Thương hiệu không được bỏ trống</span>";
+            $alert = "Thương hiệu không được bỏ trống";
             return $alert;
         } else {
             $query = "UPDATE tbl_brand SET brandName = '$brandName' WHERE brandId = '$id'";
             $result = $this->db->update($query); // Sửa lỗi insert -> update
             if ($result == true) {
-                $alert = "<span class='success'>Cập nhật thương hiệu thành công!</span>";
+                $alert = "Cập nhật thương hiệu thành công!";
                 return $alert;
             } else {
-                $alert = "<span class='error'>Cập nhật thất bại</span>";
+                $alert = ">Cập nhật thất bại";
                 return $alert;
             }
         }
@@ -64,10 +64,10 @@ class brand {
         $query = "DELETE FROM tbl_brand WHERE brandId = '$id'"; // Sửa lỗi DELETE *
         $result = $this->db->delete($query);
         if ($result) {
-            $alert = "<span class='success'>Xoá thương hiệu thành công!</span>";
+            $alert = "Xoá thương hiệu thành công>";
             return $alert;
         } else {
-            $alert = "<span class='error'>Xóa thất bại</span>";
+            $alert = "Không thể xóa vì thương hiệu này đã có sản phẩm";
             return $alert;
         }
     }

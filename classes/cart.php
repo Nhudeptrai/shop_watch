@@ -201,7 +201,7 @@ class cart
     //     $get_inbox_cart = $this->db->select($query);
     //     return $get_inbox_cart;
     // }
-    public function get_inbox_cart($start_date = null, $end_date = null, $status = null, $page = 1, $limit = 10) {
+    public function get_inbox_cart($start_date = null, $end_date = null, $status = null, $address = "", $page = 1, $limit = 10) {
         // Tính offset
         $offset = ($page - 1) * $limit;
     
@@ -217,6 +217,18 @@ class cart
             $conditions[] = "o.orderDate BETWEEN ? AND ?";
             $params[] = $start_date . ' 00:00:00';
             $params[] = $end_date . ' 23:59:59';
+        }
+        else if ($start_date) {
+            $conditions[] = "o.orderDate >= ?";
+            $params[] = $start_date . ' 00:00:00';
+        }
+        else if ($end_date) {
+            $conditions[] = "o.orderDate <= ?";
+            $params[] = $end_date . ' 23:59:59';            
+        }
+        if (!empty($address)) {
+            $conditions[] = "o.address like ?";
+            $params[] = "%" . $address . "%";
         }
         if ($status && $status !== 'Tất cả') {
             $conditions[] = "o.status = ?";

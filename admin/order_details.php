@@ -120,7 +120,7 @@ $details = $ct->get_order_details($orderId);
                         <p><strong>Ngày đặt hàng:</strong> <?php echo $fm->formatDate($order['orderDate']); ?></p>
                         <p><strong>Địa chỉ nhận hàng:</strong> <?php echo htmlspecialchars($order['address']); ?></p>
                         <p><strong>Tổng giá:</strong> <?php echo number_format($order['totalPrice'], 0, ',', '.') . ' VNĐ'; ?></p>
-                        <p><strong>Phương thức thanh toán:</strong> <?php echo htmlspecialchars($order['payment_method']); ?></p>
+                        <p><strong>Phương thức thanh toán:</strong> <?php echo htmlspecialchars($order['payment_method'] == "money" ? "Tiền mặt" : "Chuyển khoản"); ?></p>
                         <p><strong>Trạng thái:</strong> <?php echo htmlspecialchars($order['status']); ?></p>
                     </div>
                     <h3 class="text-xl font-semibold text-gray-700 mt-6 mb-4">Danh sách sản phẩm</h3>
@@ -128,6 +128,7 @@ $details = $ct->get_order_details($orderId);
                         <table>
                             <thead>
                                 <tr>
+                                    <th>STT</th>
                                     <th>Tên sản phẩm</th>
                                     <th>Hình ảnh</th>
                                     <th>Số lượng</th>
@@ -137,9 +138,11 @@ $details = $ct->get_order_details($orderId);
                             <tbody>
                                 <?php
                                 if ($details && $details->num_rows > 0) {
+                                    $i = 1;
                                     while ($detail = $details->fetch_assoc()) {
                                 ?>
                                         <tr>
+                                            <td><?= $i++ ?></td>
                                             <td><?php echo htmlspecialchars($detail['productName']); ?></td>
                                             <td>
                                                 <img src="Uploads/<?php echo htmlspecialchars($detail['image']); ?>" alt="<?php echo htmlspecialchars($detail['productName']); ?>" class="product-image" />

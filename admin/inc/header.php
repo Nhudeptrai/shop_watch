@@ -42,11 +42,11 @@ Session::checkSession();
             <ul>
             <li>Xin chào, <?php echo Session::get('adminName') ?></li>
             <?php
-                            if (isset($_GET['action']) && $_GET['action'] == 'logout'){
-                                Session::destroy();
-                            }
-                            ?>
-            <li><a href="?action=logout" class="text-red-700 hover:underline ml-2">Đăng xuất</a> </li>
+                if (isset($_GET['action']) && $_GET['action'] == 'logout'){
+                    Session::destroy();
+                }
+            ?>
+            <li><a href="index.php?action=logout" class="text-red-700 hover:underline ml-2">Đăng xuất</a> </li>
             </ul>
             
         </div>

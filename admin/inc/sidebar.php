@@ -4,7 +4,7 @@ include_once '../lib/session.php';
 Session::checkSession();
 ?>
 
-<aside class="bg-white w-64 min-h-screen shadow-lg">
+<aside class="bg-white w-64 min-h-screen shadow-lg sticky top-0">
     <div class="p-4">
         <h2 class="text-xl font-bold text-red-700">Menu Quản trị</h2>
     </div>

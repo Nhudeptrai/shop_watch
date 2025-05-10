@@ -9,16 +9,30 @@ include_once '../helpers/format.php';
 
 $pd = new product();
 $fm = new Format();
-$delPro = null;
+$statusPro = null;
 
 // Xử lý xóa sản phẩm
-if (isset($_GET['productid'])) {
+if (isset($_GET['productid']) && isset($_GET['action'])) {
     $id = $_GET['productid'];
-    $delPro = $pd->del_product($id);
-    if (strpos($delPro, 'thành công') !== false) {
-        $delPro = '<script>Swal.fire({icon: "success", title: "Thành công!", text: "Xóa sản phẩm thành công!", showConfirmButton: false, timer: 2000});</script>';
-    } else {
-        $delPro = '<script>Swal.fire({icon: "error", title: "Lỗi!", text: "' . addslashes($delPro) . '", showConfirmButton: false, timer: 2000});</script>';
+
+    if ($_GET['action'] == "delete") {
+        $statusPro = $pd->del_product($id);
+        if (strpos($statusPro, 'thành công') != false) {
+            $statusPro = '<script>Swal.fire({icon: "success", title: "Thành công!", text: "' . addslashes($statusPro) . '", showConfirmButton: false, timer: 2000}); setTimeout(() => location.href = "productlist.php", 2000);</script>';
+        } else {
+            $statusPro = '<script>Swal.fire({icon: "error", title: "Lỗi!", text: "' . addslashes($statusPro) . '", showConfirmButton: false, timer: 2000});</script>';
+        }
+    }
+
+    else if ($_GET['action'] == "unlock") {
+        $statusPro = $pd->unlock_product($id);
+
+        if (strpos($statusPro, 'thành công') != false) {
+            $statusPro = '<script>Swal.fire({icon: "success", title: "Thành công!", text: "' . addslashes($unlockPro) . '", showConfirmButton: false, timer: 2000}); setTimeout(() => location.href = "productlist.php", 2000);</script>';
+        } else {
+            $statusPro = '<script>Swal.fire({icon: "error", title: "Lỗi!", text: "' . addslashes($unlockPro) . '", showConfirmButton: false, timer: 2000});</script>';
+        }
+
     }
 }
 
@@ -28,7 +42,13 @@ $page = isset($_GET['page']) && is_numeric($_GET['page']) ? (int)$_GET['page'] :
 if ($page < 1) $page = 1;
 
 // Lấy dữ liệu sản phẩm
-$product_data = $pd->show_product($page, $limit);
+if (isset($_GET['search'])) {
+    $name = $_GET['search'];
+    $product_data = $pd->show_product($page, $limit, $name);
+}
+else {
+    $product_data = $pd->show_product($page, $limit);
+}
 $pdlist = $product_data['products'];
 $total_products = $product_data['total_products'];
 $total_pages = ceil($total_products / $limit);
@@ -167,11 +187,19 @@ $total_pages = ceil($total_products / $limit);
                 </div>
                 <div class="bg-white shadow-lg rounded-lg p-6">
                     <?php
-                    if (isset($delPro)) {
-                        echo $delPro;
+                    if (isset($statusPro)) {
+                        echo $statusPro;
                     }
                     ?>
                     <div class="table-container">
+                        <form method="GET" action="productlist.php" class="mb-2 flex justify-end">
+                            <label class="italic mr-2 self-center">Tìm kiếm: </label>
+                            <input type="search" id="search" name="search" value="<?= isset($_GET['search']) ? htmlspecialchars($_GET['search']) : '' ?>" class="rounded-l-2xl pl-3 bg-white border py-1 focus:outline-none focus:border-red-700 w-1/2" placeholder="Nhập tên sản phẩm" autocomplete="off" />
+                            <button id="btn-search" class="rounded-r-2xl bg-red-700 text-white text-lg px-3 py-1 hover:bg-red-600 duration-150 cursor-pointer">
+                                <i class="fa fa-search"></i>
+                            </button>
+                        </form>
+                    
                         <table>
                             <thead>
                                 <tr>
@@ -194,23 +222,36 @@ $total_pages = ceil($total_products / $limit);
                                         $i++;
                                 ?>
                                         <tr>
-                                            <td><?php echo $i; ?></td>
-                                            <td><?php echo htmlspecialchars($result['productName']); ?></td>
-                                            <td><?php echo number_format($result['price'], 0, ',', '.'); ?> VNĐ</td>
+                                            <td><?= $i; ?></td>
+                                            <td><?= htmlspecialchars($result['productName']); ?></td>
+                                            <td><?= number_format($result['price'], 0, ',', '.'); ?> VNĐ</td>
                                             <td>
-                                                <img src="Uploads/<?php echo htmlspecialchars($result['image']); ?>" alt="<?php echo htmlspecialchars($result['productName']); ?>" class="product-image" />
+                                                <img src="Uploads/<?= htmlspecialchars($result['image']); ?>" alt="<?= htmlspecialchars($result['productName']); ?>" class="product-image" />
                                             </td>
-                                            <td><?php echo htmlspecialchars($result['catName']); ?></td>
-                                            <td><?php echo htmlspecialchars($result['brandName']); ?></td>
-                                            <td><?php echo htmlspecialchars($fm->textShorten($result['product_desc'], 50)); ?></td>
-                                            <td><?php echo $result['type_pd'] == 1 ? 'Nổi bật' : 'Bình thường'; ?></td>
+                                            <td><?= htmlspecialchars($result['catName']); ?></td>
+                                            <td><?= htmlspecialchars($result['brandName']); ?></td>
+                                            <td><?= htmlspecialchars($fm->textShorten($result['product_desc'], 50)); ?></td>
+                                            <td><?= $result['type_pd'] == 1 ? 'Nổi bật' : 'Bình thường'; ?></td>
                                             <td>
-                                                <a href="productedit.php?productid=<?php echo $result['productId']; ?>" class="btn btn-edit bg-green-600 text-white px-3 py-1 rounded-lg mr-2">
+                                                <?php
+                                                    if ($result['isActive']) {
+                                                ?>
+                                                <a href="productedit.php?productid=<?= $result['productId']; ?>" class="btn btn-edit bg-green-600 text-white px-3 py-1 rounded-lg mr-2">
                                                     <i class="fas fa-edit"></i> Sửa
                                                 </a>
-                                                <button onclick="confirmDelete(<?php echo $result['productId']; ?>)" class="btn btn-delete bg-red-600 text-white px-3 py-1 rounded-lg">
+                                                <button onclick="confirmDelete(<?= $result['productId']; ?>)" class="btn btn-delete bg-red-600 text-white px-3 py-1 rounded-lg">
                                                     <i class="fas fa-trash"></i> Xóa
                                                 </button>
+                                                <?php
+                                                    }
+                                                    else {
+                                                ?>                                                
+                                                <button onclick="confirmUnlock(<?= $result['productId']; ?>)" class="btn bg-yellow-400 hover:bg-yellow-300 px-3 py-1 rounded-lg">
+                                                    <i class="fas fa-lock-open"></i> Mở khóa
+                                                </button>
+                                                <?php
+                                                    }
+                                                ?>
                                             </td>
                                         </tr>
                                 <?php
@@ -232,7 +273,7 @@ $total_pages = ceil($total_products / $limit);
                         <div class="pagination-container">
                             <div class="pagination">
                                 <!-- Nút Trước -->
-                                <a href="?page=<?php echo $page - 1; ?>" class="<?php echo $page <= 1 ? 'disabled' : ''; ?>">
+                                <a href="?page=<?= $page - 1; ?><?= isset($_GET['search']) ? "&search=" . $_GET['search'] : "" ?>" class="<?= $page <= 1 ? 'disabled' : ''; ?>">
                                     <i class="fas fa-chevron-left"></i>
                                 </a>
                                 <!-- Số trang -->
@@ -240,23 +281,23 @@ $total_pages = ceil($total_products / $limit);
                                 $start_page = max(1, $page - 2);
                                 $end_page = min($total_pages, $page + 2);
                                 if ($start_page > 1) {
-                                    echo '<a href="?page=1">1</a>';
+                                    echo '<a href="?page=1' . (isset($_GET['search']) ? "?search=" . $_GET['search'] : "") . '">1</a>';
                                     if ($start_page > 2) {
                                         echo '<span>...</span>';
                                     }
                                 }
                                 for ($i = $start_page; $i <= $end_page; $i++) {
-                                    echo '<a href="?page=' . $i . '" class="' . ($i == $page ? 'active' : '') . '">' . $i . '</a>';
+                                    echo '<a href="?page=' . $i . (isset($_GET['search']) ? "&search=" . $_GET['search'] : "") . '" class="' . ($i == $page ? 'active' : '') . '">' . $i . '</a>';
                                 }
                                 if ($end_page < $total_pages) {
                                     if ($end_page < $total_pages - 1) {
                                         echo '<span>...</span>';
                                     }
-                                    echo '<a href="?page=' . $total_pages . '">' . $total_pages . '</a>';
+                                    echo '<a href="?page=' . $total_pages . (isset($_GET['search']) ? "&search=" . $_GET['search'] : "") . '">' . $total_pages . '</a>';
                                 }
                                 ?>
                                 <!-- Nút Sau -->
-                                <a href="?page=<?php echo $page + 1; ?>" class="<?php echo $page >= $total_pages ? 'disabled' : ''; ?>">
+                                <a href="?page=<?= $page + 1; ?><?= isset($_GET['search']) ? "&search=" . $_GET['search'] : "" ?>" class="<?= $page >= $total_pages ? 'disabled' : ''; ?>">
                                     <i class="fas fa-chevron-right"></i>
                                 </a>
                             </div>
@@ -278,7 +319,6 @@ $total_pages = ceil($total_products / $limit);
         function confirmDelete(id) {
             Swal.fire({
                 title: 'Bạn có chắc muốn xóa?',
-                text: 'Sản phẩm này sẽ bị xóa vĩnh viễn!',
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonColor: '#b91c1c',
@@ -287,7 +327,23 @@ $total_pages = ceil($total_products / $limit);
                 cancelButtonText: 'Hủy'
             }).then((result) => {
                 if (result.isConfirmed) {
-                    window.location.href = `?productid=${id}`;
+                    window.location.href = `?productid=${id}&action=delete`;
+                }
+            });
+        }
+        
+        function confirmUnlock(id) {
+            Swal.fire({
+                title: 'Bạn có chắc muốn mở khóa?',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#b91c1c',
+                cancelButtonColor: '#6b7280',
+                confirmButtonText: 'Mở khóa',
+                cancelButtonText: 'Hủy'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.href = `?productid=${id}&action=unlock`;
                 }
             });
         }
