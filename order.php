@@ -52,6 +52,9 @@ while ($product = $cart_products->fetch_assoc()) {
 
 // Xử lý nút thanh toán
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['name']) && isset($_POST['address']) && isset($_POST['phone'])) {
+    error_log("Form submitted with POST method");
+    error_log("POST data: " . print_r($_POST, true));
+    
     $name = $_POST['name'];
     $address = $_POST['address'];
     $phone = $_POST['phone'];
@@ -63,6 +66,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['name']) && isset($_POS
     $result = $db->insert($query, [$total_price, 'Chưa xác nhận', (int)$customer_id, $address, $payment_method]);
 
     if ($result) {
+        error_log("Order inserted successfully. Order ID: " . $db->link->insert_id);
         $order_id = $db->link->insert_id;
         // Lưu chi tiết đơn hàng vào tbl_order_details
         $cart_products->data_seek(0);
@@ -414,6 +418,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['name']) && isset($_POS
         }
 
         function confirmPayment() {
+            console.log("Confirming payment...");
             document.getElementById("receiver-form").submit();
         }
     </script>

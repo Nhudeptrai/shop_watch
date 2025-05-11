@@ -188,7 +188,7 @@ if ($cancel_orders) {
                 <thead class="bg-red-700 text-white font-bold">
                     <tr>
                         <th class="w-[15%] border-1 border-red-700 px-4 py-1">Mã đơn hàng</th>
-                        <th class="w-[25%] border-1 border-red-700 px-4">Thời gian đặt hàng</th>
+                        <th class="w-[15%] border-1 border-red-700 px-4">Thời gian đặt hàng</th>
                         <th class="w-[25%] border-1 border-red-700 px-4">Địa chỉ nhận hàng</th>
                         <th class="w-[15%] border-1 border-red-700 px-4">Tổng tiền</th>
                         <th class="w-[15%] border-1 border-red-700 px-4">Trạng thái</th>
@@ -235,7 +235,7 @@ if ($cancel_orders) {
                 <thead class="bg-red-700 text-white font-bold">
                     <tr>
                         <th class="w-[15%] border-1 border-red-700 px-4 py-1">Mã đơn hàng</th>
-                        <th class="w-[25%] border-1 border-red-700 px-4">Thời gian đặt hàng</th>
+                        <th class="w-[15%] border-1 border-red-700 px-4">Thời gian đặt hàng</th>
                         <th class="w-[25%] border-1 border-red-700 px-4">Địa chỉ nhận hàng</th>
                         <th class="w-[15%] border-1 border-red-700 px-4">Tổng tiền</th>
                         <th class="w-[15%] border-1 border-red-700 px-4">Trạng thái</th>
@@ -277,7 +277,7 @@ if ($cancel_orders) {
                 <thead class="bg-red-700 text-white font-bold">
                     <tr>
                         <th class="w-[15%] border-1 border-red-700 px-4 py-1">Mã đơn hàng</th>
-                        <th class="w-[25%] border-1 border-red-700 px-4">Thời gian đặt hàng</th>
+                        <th class="w-[15%] border-1 border-red-700 px-4">Thời gian đặt hàng</th>
                         <th class="w-[25%] border-1 border-red-700 px-4">Địa chỉ nhận hàng</th>
                         <th class="w-[15%] border-1 border-red-700 px-4">Tổng tiền</th>
                         <th class="w-[15%] border-1 border-red-700 px-4">Trạng thái</th>

@@ -81,7 +81,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['login'])) {
       ?>
       <!-- Hình ảnh + liên kết tới đăng ký -->
       <div class="relative min-h-120">
-        <img src="images/login.jpg" alt="login" class="rounded-se-2xl rounded-ee-2xl object-cover w-full h-full absolute top-0 left-0" />
+        <img src="images/login1.jpg" alt="login" class="rounded-se-2xl rounded-ee-2xl object-cover w-full h-full absolute top-0 left-0" />
         <div class="bg-[#00000066] rounded-se-2xl rounded-ee-2xl flex flex-col justify-center px-8 z-10 w-full h-full absolute top-0 left-0">
           <h1 class="text-white text-4xl font-bold text-center pb-4">Chào mừng!</h1>
           <p class="text-white italic text-center text-lg">Chào mừng bạn quay trở lại với ShopWatch!</p>
