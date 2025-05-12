@@ -330,74 +330,62 @@ if ($cancel_orders) {
         }
 
         function openOverlay(orderId) {
-            document.getElementById("order-title").innerText = `Đơn hàng #${orderId}`;
-            const tbody = document.getElementById("order-details");
-            tbody.innerHTML = '';
-            let total = 0;
-
-            console.log('Fetching order details for Order ID:', orderId);
+            // Gọi AJAX để lấy chi tiết đơn hàng
             fetch(`get_order_details.php?order_id=${orderId}`)
-                .then(response => {
-                    console.log('Response status for get_order_details:', response.status);
-                    if (!response.ok) {
-                        throw new Error('Network response was not ok: ' + response.statusText);
-                    }
-                    return response.json();
-                })
+                .then(response => response.json())
                 .then(data => {
-                    console.log('Order details data:', data);
-                    if (data.details && data.details.length > 0) {
+                    if (data.success) {
+                        // Hiển thị thông tin đơn hàng
+                        document.getElementById('order-id').textContent = data.order.id;
+                        document.getElementById('order-date').textContent = data.order.orderDate;
+                        document.getElementById('order-address').textContent = data.order.address;
+                        document.getElementById('order-status').textContent = data.order.status;
+                        document.getElementById('order-total').textContent = new Intl.NumberFormat('vi-VN').format(data.order.totalPrice) + 'đ';
+
+                        // Hiển thị chi tiết sản phẩm
+                        const tbody = document.getElementById('order-details-body');
+                        tbody.innerHTML = '';
                         data.details.forEach(item => {
-                            const subtotal = item.price * item.quantity;
-                            total += subtotal;
-                            tbody.innerHTML += `
-                                <tr>
-                                    <td>
-                                        <img src="admin/uploads/${item.image}" alt="product" />
-                                    </td>
-                                    <td class="text-left">${item.productName}</td>
-                                    <td>${item.quantity}</td>
-                                    <td class="truncate-address">${data.address || 'Không có địa chỉ'}</td>
-                                    <td>${item.price.toLocaleString('vi-VN')}đ</td>
-                                    <td>${subtotal.toLocaleString('vi-VN')}đ</td>
-                                </tr>
+                            const row = document.createElement('tr');
+                            row.className = 'odd:bg-red-100 even:bg-white';
+                            row.innerHTML = `
+                                <td class="border-1 border-red-700">
+                                    <img src="admin/uploads/${item.image}" alt="product" class="max-w-40" />
+                                </td>
+                                <td class="border-1 border-red-700 px-4">${item.productName}</td>
+                                <td class="border-1 border-red-700 text-center">${item.quantity}</td>
+                                <td class="border-1 border-red-700 text-center">${new Intl.NumberFormat('vi-VN').format(item.price)}đ</td>
+                                <td class="border-1 border-red-700 text-center">${new Intl.NumberFormat('vi-VN').format(item.price * item.quantity)}đ</td>
                             `;
+                            tbody.appendChild(row);
                         });
-                        const tfoot = document.querySelector('#order-detail-overlay table tfoot');
-                        tfoot.innerHTML = `
-                            <tr>
-                                <td colspan="4"></td>
-                                <td>TỔNG</td>
-                                <td>${total.toLocaleString('vi-VN')}đ</td>
-                            </tr>
-                        `;
-                        document.getElementById("order-detail-overlay").classList.remove("hidden");
+
+                        // Hiển thị overlay
+                        document.getElementById('order-details-overlay').style.display = 'flex';
                     } else {
-                        tbody.innerHTML = '<tr><td colspan="6" class="text-center py-4">Không có chi tiết đơn hàng</td></tr>';
-                        document.querySelector('#order-detail-overlay table tfoot').innerHTML = `
-                            <tr>
-                                <td colspan="4"></td>
-                                <td>TỔNG</td>
-                                <td>0đ</td>
-                            </tr>
-                        `;
-                        document.getElementById("order-detail-overlay").classList.remove("hidden");
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Lỗi!',
+                            text: data.message || 'Không thể lấy thông tin đơn hàng',
+                            showConfirmButton: false,
+                            timer: 2000
+                        });
                     }
                 })
                 .catch(error => {
-                    console.error('Error fetching order details:', error);
+                    console.error('Error:', error);
                     Swal.fire({
-                        position: 'top-end',
                         icon: 'error',
-                        title: 'Không thể tải chi tiết đơn hàng: ' + error.message,
+                        title: 'Lỗi!',
+                        text: 'Không thể lấy thông tin đơn hàng',
                         showConfirmButton: false,
-                        timer: 3000
+                        timer: 2000
                     });
                 });
         }
 
         function closeOverlay() {
-            document.getElementById("order-detail-overlay").classList.add("hidden");
+            document.getElementById('order-details-overlay').style.display = 'none';
         }
 
         function notCloseOverlay(event) {
@@ -460,5 +448,39 @@ if ($cancel_orders) {
             });
         }
     </script>
+
+    <!-- Overlay chi tiết đơn hàng -->
+    <div id="order-details-overlay" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden items-center justify-center">
+        <div class="bg-white p-6 rounded-lg w-11/12 max-w-6xl max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-2xl font-bold text-red-700">Chi tiết đơn hàng</h2>
+                <button onclick="closeOverlay()" class="text-gray-500 hover:text-gray-700">
+                    <i class="fa fa-times text-xl"></i>
+                </button>
+            </div>
+            
+            <div class="mb-4">
+                <p><strong>Mã đơn hàng:</strong> <span id="order-id"></span></p>
+                <p><strong>Ngày đặt:</strong> <span id="order-date"></span></p>
+                <p><strong>Địa chỉ:</strong> <span id="order-address"></span></p>
+                <p><strong>Trạng thái:</strong> <span id="order-status"></span></p>
+            </div>
+
+            <table class="w-full">
+                <thead class="bg-red-700 text-white font-bold">
+                    <tr>
+                        <th class="w-[10%] border-1 border-red-700 px-4 py-1">Hình ảnh</th>
+                        <th class="w-[50%] border-1 border-red-700 px-4">Tên sản phẩm</th>
+                        <th class="w-[10%] border-1 border-red-700 px-4">Số lượng</th>
+                        <th class="w-[15%] border-1 border-red-700 px-4">Đơn giá</th>
+                        <th class="w-[15%] border-1 border-red-700 px-4">Thành tiền</th>
+                    </tr>
+                </thead>
+                <tbody id="order-details-body" class="border-red-700">
+                    <!-- Chi tiết sản phẩm sẽ được thêm vào đây bằng JavaScript -->
+                </tbody>
+            </table>
+        </div>
+    </div>
 </body>
 </html>

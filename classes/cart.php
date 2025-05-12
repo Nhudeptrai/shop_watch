@@ -279,16 +279,145 @@ class cart
     }
 
     public function get_order_details($orderId)
-{
-    $orderId = mysqli_real_escape_string($this->db->link, $orderId);
-    $query = "SELECT * FROM tbl_order_details WHERE orderId = '$orderId'";
-    $result = $this->db->select($query);
-    return $result;
-}
+    {
+        $orderId = mysqli_real_escape_string($this->db->link, $orderId);
+        $query = "SELECT * FROM tbl_order_details WHERE orderId = '$orderId'";
+        $result = $this->db->select($query);
+        return $result;
+    }
 
+    public function confirm_order($customer_id, $name, $address, $phone, $payment_method) {
+        $customer_id = mysqli_real_escape_string($this->db->link, $customer_id);
+        $name = mysqli_real_escape_string($this->db->link, $name);
+        $address = mysqli_real_escape_string($this->db->link, $address);
+        $phone = mysqli_real_escape_string($this->db->link, $phone);
+        $payment_method = mysqli_real_escape_string($this->db->link, $payment_method);
 
-    
-    
+        // Bắt đầu transaction
+        $this->db->link->begin_transaction();
 
+        try {
+            // Lấy thông tin giỏ hàng
+            $cart_query = "SELECT * FROM tbl_cart WHERE customer_id = '$customer_id'";
+            $cart_result = $this->db->select($cart_query);
+            
+            if (!$cart_result || $cart_result->num_rows == 0) {
+                throw new Exception("Giỏ hàng trống!");
+            }
+
+            // Tính tổng tiền
+            $total_price = 0;
+            $cart_items = [];
+            while ($item = $cart_result->fetch_assoc()) {
+                $total_price += $item['price'] * $item['quantity'];
+                $cart_items[] = $item;
+            }
+
+            // Tạo đơn hàng mới
+            $order_query = "INSERT INTO tbl_order(customerId, orderDate, totalPrice, status, address, payment_method) 
+                           VALUES('$customer_id', NOW(), '$total_price', 'Chưa xác nhận', '$address', '$payment_method')";
+            $order_result = $this->db->insert($order_query);
+
+            if (!$order_result) {
+                throw new Exception("Lỗi khi tạo đơn hàng!");
+            }
+
+            $order_id = $this->db->link->insert_id;
+
+            // Lưu chi tiết đơn hàng
+            foreach ($cart_items as $item) {
+                $product_id = $item['productId'];
+                $quantity = $item['quantity'];
+                $price = $item['price'];
+                $product_name = $item['productName'];
+
+                // Thêm chi tiết đơn hàng
+                $detail_query = "INSERT INTO tbl_order_details(orderId, productId, productName, quantity, price) 
+                                VALUES('$order_id', '$product_id', '$product_name', '$quantity', '$price')";
+                $detail_result = $this->db->insert($detail_query);
+
+                if (!$detail_result) {
+                    throw new Exception("Lỗi khi lưu chi tiết đơn hàng!");
+                }
+            }
+
+            // Xóa giỏ hàng
+            $clear_cart_query = "DELETE FROM tbl_cart WHERE customer_id = '$customer_id'";
+            $clear_cart_result = $this->db->delete($clear_cart_query);
+
+            if (!$clear_cart_result) {
+                throw new Exception("Lỗi khi xóa giỏ hàng!");
+            }
+
+            // Commit transaction
+            $this->db->link->commit();
+            return "Đơn hàng đã được xác nhận";
+
+        } catch (Exception $e) {
+            // Rollback transaction nếu có lỗi
+            $this->db->link->rollback();
+            return $e->getMessage();
+        }
+    }
+
+    public function update_order_status($orderId, $status) {
+        $orderId = mysqli_real_escape_string($this->db->link, $orderId);
+        $status = mysqli_real_escape_string($this->db->link, $status);
+
+        // Bắt đầu transaction
+        $this->db->link->begin_transaction();
+
+        try {
+            // Nếu trạng thái là "Đã xác nhận", cập nhật số lượng tồn kho
+            if ($status == 'Đã xác nhận') {
+                // Lấy chi tiết đơn hàng
+                $query = "SELECT * FROM tbl_order_details WHERE orderId = '$orderId'";
+                $details = $this->db->select($query);
+                
+                if ($details) {
+                    while ($detail = $details->fetch_assoc()) {
+                        $productId = $detail['productId'];
+                        $quantity = $detail['quantity'];
+                        
+                        // Kiểm tra số lượng tồn kho trước khi trừ
+                        $check_query = "SELECT product_quantity FROM tbl_product WHERE productId = '$productId'";
+                        $check_result = $this->db->select($check_query);
+                        $current_quantity = $check_result->fetch_assoc()['product_quantity'];
+                        
+                        if ($current_quantity < $quantity) {
+                            throw new Exception("Sản phẩm không đủ số lượng trong kho!");
+                        }
+                        
+                        // Cập nhật số lượng tồn kho
+                        $update_query = "UPDATE tbl_product 
+                                       SET product_quantity = product_quantity - $quantity 
+                                       WHERE productId = '$productId'";
+                        $update_result = $this->db->update($update_query);
+                        
+                        if (!$update_result) {
+                            throw new Exception("Không thể cập nhật số lượng sản phẩm!");
+                        }
+                    }
+                }
+            }
+
+            // Cập nhật trạng thái đơn hàng
+            $query = "UPDATE tbl_order SET status = '$status' WHERE id = '$orderId'";
+            $update_order = $this->db->update($query);
+            
+            if (!$update_order) {
+                throw new Exception("Không thể cập nhật trạng thái đơn hàng!");
+            }
+
+            // Commit transaction
+            $this->db->link->commit();
+            return true;
+
+        } catch (Exception $e) {
+            // Rollback nếu có lỗi
+            $this->db->link->rollback();
+            return false;
+        }
+    }
 }
 ?>

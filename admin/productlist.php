@@ -1,4 +1,4 @@
-﻿<?php
+﻿﻿<?php
 include_once '../lib/session.php';
 Session::checkSession();
 
@@ -37,7 +37,7 @@ if (isset($_GET['productid']) && isset($_GET['action'])) {
 }
 
 // Xử lý phân trang
-$limit = 6; // Số sản phẩm mỗi trang
+$limit = 10; // Số sản phẩm mỗi trang
 $page = isset($_GET['page']) && is_numeric($_GET['page']) ? (int)$_GET['page'] : 1;
 if ($page < 1) $page = 1;
 

@@ -145,7 +145,7 @@ $details = $ct->get_order_details($orderId);
                                             <td><?= $i++ ?></td>
                                             <td><?php echo htmlspecialchars($detail['productName']); ?></td>
                                             <td>
-                                                <img src="Uploads/<?php echo htmlspecialchars($detail['image']); ?>" alt="<?php echo htmlspecialchars($detail['productName']); ?>" class="product-image" />
+                                                <img src="uploads/<?php echo htmlspecialchars($detail['image']); ?>" alt="<?php echo htmlspecialchars($detail['productName']); ?>" class="product-image" />
                                             </td>
                                             <td><?php echo $detail['quantity']; ?></td>
                                             <td><?php echo number_format($detail['price'], 0, ',', '.') . ' VNĐ'; ?></td>

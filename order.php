@@ -61,7 +61,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['name']) && isset($_POS
     $payment_method = isset($_POST['payment-method']) ? $_POST['payment-method'] : 'money';
     $customer_id = Session::get('customer_id');
 
-
+    // Gọi hàm xác nhận đơn hàng
+    $result = $ct->confirm_order($customer_id, $name, $address, $phone, $payment_method);
     
     if ($result === "Đơn hàng đã được xác nhận") {
         echo "<script>Swal.fire({
@@ -70,10 +71,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['name']) && isset($_POS
             title: '$result',
             showConfirmButton: false,
             timer: 1500
+        }).then(() => {
+            window.location.href = 'index.php';
         });</script>";
-        // Chuyển hướng sau khi đặt hàng thành công
-        header("Location: index.php");
-        exit();
     } else {
         echo "<script>Swal.fire({
             position: 'top-end',

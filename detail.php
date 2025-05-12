@@ -10,18 +10,49 @@ if (!isset($_GET['proid']) || $_GET['proid'] == NULL) {
 } else {
     $id = $_GET['proid'];
 }
+
+// Lấy thông tin sản phẩm trước
+$get_product_details = $pd->get_details($id);
+if (!$get_product_details) {
+    echo "<script>window.location ='404.php';</script>";
+    exit();
+}
+$result_details = $get_product_details->fetch_assoc();
+
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['submit'])) {
-  // Kiểm tra xem người dùng đã đăng nhập chưa
-  if (!Session::get('customer_login')) {
-      // Nếu chưa đăng nhập, lưu URL hiện tại và chuyển hướng đến trang đăng nhập
-      Session::set('redirect_url', $_SERVER['REQUEST_URI']);
-      echo "<script>window.location ='login.php';</script>";
-      exit();
-  } else {
-  
-          $quantity = $_POST['quantity'];
-      $addtoCart = $ct->add_to_cart($quantity, $id);
-      if ($quantity > $result_details['product_quantity']) {
+    // Kiểm tra xem người dùng đã đăng nhập chưa
+    if (!Session::get('customer_login')) {
+        // Nếu chưa đăng nhập, lưu URL hiện tại và chuyển hướng đến trang đăng nhập
+        Session::set('redirect_url', $_SERVER['REQUEST_URI']);
+        echo "<script>window.location ='login.php';</script>";
+        exit();
+    } else {
+        $quantity = (int)$_POST['quantity'];
+        // Kiểm tra số lượng tồn kho
+        if ($quantity > $result_details['product_quantity']) {
+            echo "<script>Swal.fire({
+                position: 'top-end',
+                icon: 'error',
+                title: 'Số lượng vượt quá tồn kho!',
+                showConfirmButton: false,
+                timer: 3000
+            });</script>";
+        } else {
+            $addtoCart = $ct->add_to_cart($quantity, $id);
+        }
+    }
+}
+
+// Xử lý thanh toán ngay
+if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['buy_now'])) {
+    if (!Session::get('customer_login')) {
+        Session::set('redirect_url', $_SERVER['REQUEST_URI']);
+        echo "<script>window.location ='login.php';</script>";
+        exit();
+    }
+    $quantity = (int)$_POST['quantity'];
+    // Kiểm tra số lượng tồn kho
+    if ($quantity > $result_details['product_quantity']) {
         echo "<script>Swal.fire({
             position: 'top-end',
             icon: 'error',
@@ -29,33 +60,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['submit'])) {
             showConfirmButton: false,
             timer: 3000
         });</script>";
-  }
-}
-}
-
-// Xử lý thanh toán ngay
-if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['buy_now'])) {
-  if (!Session::get('customer_login')) {
-      Session::set('redirect_url', $_SERVER['REQUEST_URI']);
-      echo "<script>window.location ='login.php';</script>";
-      exit();
-  }  // Kiểm tra số lượng tồn kho
-  if ($quantity > $result_details['product_quantity']) {
-      echo "<script>Swal.fire({
-          position: 'top-end',
-          icon: 'error',
-          title: 'Số lượng vượt quá tồn kho!',
-          showConfirmButton: false,
-          timer: 3000
-      });</script>";
-  } else {
-      $addtoCart = $ct->add_to_cart($quantity, $product_stock,$id);
-      if ($addtoCart) {
-          echo "<script>window.location ='order.php';</script>";
-          exit();
-      }
-  }
-
+    } else {
+        $addtoCart = $ct->add_to_cart($quantity, $id);
+        if ($addtoCart) {
+            echo "<script>window.location ='order.php';</script>";
+            exit();
+        }
+    }
 }
 ?>
 <!DOCTYPE html>
@@ -71,11 +82,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['buy_now'])) {
     <?php include_once "inc/slider.php" ?>
 
     <main class="mx-10 my-6">
-    <?php
-      $get_product_details = $pd->get_details($id);
-      if ($get_product_details) {
-        while ($result_details = $get_product_details->fetch_assoc()) {
-    ?>
       <div class="grid grid-cols-[320px_1fr] gap-x-4 mb-4">
         <img src="admin/uploads/<?php echo $result_details['image']; ?>" alt="Thumbnail sản phẩm" class="border-gray-300 border-1" />
 
@@ -89,7 +95,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['buy_now'])) {
               Số lượng:
               <button type="button" onclick="changeNumber(-1)" class="border-1 border-red-700 bg-red-700 text-white cursor-pointer hover:bg-red-600 duration-150 rounded-ss-2xl rounded-es-2xl px-2 -me-2">&minus;</button>
               <input type="number" value="1" name="quantity" id="quantity" readonly class="border-1 border-red-700 bg-white text-center w-15" />
-              <input type="hidden" value="<?php echo $result_details['product_quantity']; ?>" name="product_stock" -white text-center w-15" />
+              <input type="hidden" value="<?php echo $result_details['product_quantity']; ?>" id="product_stock" />
               <button type="button" onclick="changeNumber(1)" class="border-1 border-red-700 bg-red-700 text-white cursor-pointer hover:bg-red-600 duration-150 rounded-se-2xl rounded-ee-2xl px-2 -ms-2">+</button>
             </div>
             <h1 class="font-bold text-2xl mb-4">Tồn kho: <?php echo $result_details['product_quantity']; ?></h1>
@@ -114,32 +120,30 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['buy_now'])) {
       <!-- Mô tả -->
       <h1 class="text-red-700 border-b-1 border-b-red-900 text-2xl font-bold">MÔ TẢ SẢN PHẨM</h1>
       <p class="mt-2 mb-7 text-base/8 text-justify">
-        <?php echo$result_details['product_desc']; ?>
+        <?php echo $result_details['product_desc']; ?>
       </p>
-      <?php }} ?>
 
     <!-- Sản phẩm liên quan -->
-<h1 class="text-red-700 border-b-1 border-b-red-900 text-2xl font-bold">SẢN PHẨM LIÊN QUAN</h1>
-<div class="grid max-sm:grid-cols-1 sm:max-lg:grid-cols-2 lg:max-xl:grid-cols-3 xl:grid-cols-4 gap-y-4 my-7 place-items-center">
-  <?php
-  $product_feathered = $pd->getproduct_feathered();
-  $count = 0;
-  if ($product_feathered) {
-      while ($result = $product_feathered->fetch_assoc()) {
-          if ($count >= 4) break;
-          $count++;
-  ?>
-    <a href="detail.php?proid=<?php echo $result['productId'] ?>" class="grid text-center w-[260px] rounded-lg text-red-700 bg-gray-100 border-2 border-gray-200 pb-2 product-shadow-hover hover:bg-red-50 hover:border-red-50 duration-150 cursor-pointer">
-      <img src="admin/uploads/<?php echo $result['image'] ?>" alt="product" class="rounded-se-lg rounded-ss-lg" />
-      <div class="text-xl/9 font-bold py-2"><?php echo $result['productName'] ?></div>
-      <div><?php echo number_format($result['price']) . " đ" ?></div>
-    </a>
-  <?php
+    <h1 class="text-red-700 border-b-1 border-b-red-900 text-2xl font-bold">SẢN PHẨM LIÊN QUAN</h1>
+    <div class="grid max-sm:grid-cols-1 sm:max-lg:grid-cols-2 lg:max-xl:grid-cols-3 xl:grid-cols-4 gap-y-4 my-7 place-items-center">
+      <?php
+      $product_feathered = $pd->getproduct_feathered();
+      $count = 0;
+      if ($product_feathered) {
+          while ($result = $product_feathered->fetch_assoc()) {
+              if ($count >= 4) break;
+              $count++;
+      ?>
+        <a href="detail.php?proid=<?php echo $result['productId'] ?>" class="grid text-center w-[260px] rounded-lg text-red-700 bg-gray-100 border-2 border-gray-200 pb-2 product-shadow-hover hover:bg-red-50 hover:border-red-50 duration-150 cursor-pointer">
+          <img src="admin/uploads/<?php echo $result['image'] ?>" alt="product" class="rounded-se-lg rounded-ss-lg" />
+          <div class="text-xl/9 font-bold py-2"><?php echo $result['productName'] ?></div>
+          <div><?php echo number_format($result['price']) . " đ" ?></div>
+        </a>
+      <?php
+          }
       }
-  }
-  ?>
-</div>
-
+      ?>
+    </div>
     </main>
 
     <?php include_once "inc/footer.php" ?>
@@ -147,8 +151,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['buy_now'])) {
     <script>
       function changeNumber(addNumber) {
         const quantity = document.getElementById("quantity");
-        if (Number(quantity.value) + addNumber > 0) {
-          quantity.value = Number(quantity.value) + addNumber;
+        const stock = parseInt(document.getElementById("product_stock").value);
+        const newValue = Number(quantity.value) + addNumber;
+        
+        if (newValue > 0 && newValue <= stock) {
+          quantity.value = newValue;
         }
       }
     </script>

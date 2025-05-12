@@ -1,38 +1,62 @@
 <?php
 include_once 'lib/database.php';
 include_once 'lib/session.php';
+include_once 'classes/cart.php';
+
 Session::init();
-
 $db = new Database();
+$ct = new cart();
 
-$order_id = isset($_GET['order_id']) ? intval($_GET['order_id']) : 0;
+// Kiểm tra đăng nhập
+if (!Session::get('customer_login')) {
+    echo json_encode(['success' => false, 'message' => 'Vui lòng đăng nhập!']);
+    exit();
+}
+
+$order_id = isset($_GET['order_id']) ? (int)$_GET['order_id'] : 0;
 $customer_id = Session::get('customer_id');
 
-$query = "
-    SELECT od.productName, od.image, od.quantity, od.price, o.address
-    FROM tbl_order_details od
-    INNER JOIN tbl_order o ON od.orderId = o.id
-    WHERE od.orderId = ? AND od.customerId = ? AND o.customerId = ?
-";
-$result = $db->select($query, [(int)$order_id, (int)$customer_id, (int)$customer_id]);
+if (!$order_id) {
+    echo json_encode(['success' => false, 'message' => 'Mã đơn hàng không hợp lệ!']);
+    exit();
+}
 
-$details = [];
-$address = '';
-if ($result && $result->num_rows > 0) {
-    while ($row = $result->fetch_assoc()) {
-        $details[] = [
-            'productName' => $row['productName'],
-            'image' => $row['image'],
-            'quantity' => (int)$row['quantity'],
-            'price' => floatval($row['price'])
+// Lấy thông tin đơn hàng
+$order = $ct->get_order($order_id);
+
+// Kiểm tra xem đơn hàng có thuộc về khách hàng này không
+if (!$order || $order['customerId'] != $customer_id) {
+    echo json_encode(['success' => false, 'message' => 'Không tìm thấy đơn hàng!']);
+    exit();
+}
+
+// Lấy chi tiết đơn hàng
+$details = $ct->get_order_details($order_id);
+$order_details = [];
+
+if ($details) {
+    while ($detail = $details->fetch_assoc()) {
+        // Lấy hình ảnh sản phẩm
+        $product_query = "SELECT image FROM tbl_product WHERE productId = '{$detail['productId']}'";
+        $product_result = $db->select($product_query);
+        $product = $product_result ? $product_result->fetch_assoc() : null;
+        
+        $order_details[] = [
+            'productId' => $detail['productId'],
+            'productName' => $detail['productName'],
+            'quantity' => $detail['quantity'],
+            'price' => $detail['price'],
+            'image' => $product ? $product['image'] : 'default.jpg'
         ];
-        $address = $row['address']; // Lấy address từ tbl_order (giống cho mọi chi tiết)
     }
 }
 
-header('Content-Type: application/json');
+// Format ngày đặt hàng
+$order['orderDate'] = date('d/m/Y H:i', strtotime($order['orderDate']));
+
 echo json_encode([
-    'details' => $details,
-    'address' => $address
+    'success' => true,
+    'order' => $order,
+    'details' => $order_details
 ]);
 ?>
