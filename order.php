@@ -61,8 +61,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['name']) && isset($_POS
     $payment_method = isset($_POST['payment-method']) ? $_POST['payment-method'] : 'money';
     $customer_id = Session::get('customer_id');
 
-    // Sử dụng hàm confirm_order từ cart class
-    $result = $ct->confirm_order($customer_id, $address);
+
     
     if ($result === "Đơn hàng đã được xác nhận") {
         echo "<script>Swal.fire({

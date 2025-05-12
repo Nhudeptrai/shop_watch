@@ -10,7 +10,6 @@ if (!isset($_GET['proid']) || $_GET['proid'] == NULL) {
 } else {
     $id = $_GET['proid'];
 }
-
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['submit'])) {
   // Kiểm tra xem người dùng đã đăng nhập chưa
   if (!Session::get('customer_login')) {
@@ -19,7 +18,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['submit'])) {
       echo "<script>window.location ='login.php';</script>";
       exit();
   } else {
-    $product_quantity = $_POST['product_quantity'];
+  
           $quantity = $_POST['quantity'];
       $addtoCart = $ct->add_to_cart($quantity, $id);
       if ($quantity > $result_details['product_quantity']) {
@@ -50,7 +49,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['buy_now'])) {
           timer: 3000
       });</script>";
   } else {
-      $addtoCart = $ct->add_to_cart($quantity, $id);
+      $addtoCart = $ct->add_to_cart($quantity, $product_stock,$id);
       if ($addtoCart) {
           echo "<script>window.location ='order.php';</script>";
           exit();
