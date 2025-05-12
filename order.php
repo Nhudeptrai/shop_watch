@@ -61,61 +61,27 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['name']) && isset($_POS
     $payment_method = isset($_POST['payment-method']) ? $_POST['payment-method'] : 'money';
     $customer_id = Session::get('customer_id');
 
-    // Lưu đơn hàng vào tbl_order với prepared statement
-    $query = "INSERT INTO tbl_order (orderDate, totalPrice, status, customerId, address, payment_method) VALUES (NOW(), ?, ?, ?, ?, ?)";
-    $result = $db->insert($query, [$total_price, 'Chưa xác nhận', (int)$customer_id, $address, $payment_method]);
-
-    if ($result) {
-        error_log("Order inserted successfully. Order ID: " . $db->link->insert_id);
-        $order_id = $db->link->insert_id;
-        // Lưu chi tiết đơn hàng vào tbl_order_details
-        $cart_products->data_seek(0);
-        $success = true;
-        while ($product = $cart_products->fetch_assoc()) {
-            $product_id = $product['productId'];
-            $quantity = $product['quantity'];
-            $price = $product['price'];
-            $product_name = $product['productName'];
-            $image = $product['image'];
-            $session_id = session_id();
-            $query_detail = "INSERT INTO tbl_order_details (orderId, productId, quantity, sessionId, customerId, price, productName, image) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
-            if (!$db->insert($query_detail, [(int)$order_id, (int)$product_id, (int)$quantity, $session_id, (int)$customer_id, $price, $product_name, $image])) {
-                $success = false;
-                break;
-            }
-        }
-
-        if ($success) {
-            // Xóa giỏ hàng
-            $query_delete = "DELETE FROM tbl_cart WHERE customer_id = ?";
-            $db->delete($query_delete, [(int)$customer_id]);
-            // Chuyển hướng đến order-history.php
-            echo "<script>Swal.fire({
-                position: 'top-end',
-                icon: 'success',
-                title: 'Đặt hàng thành công!',
-                showConfirmButton: false,
-                timer: 3000
-            }).then(() => {
-                window.location.href = 'order-history.php';
-            });</script>";
-            exit();
-        } else {
-            echo "<script>Swal.fire({
-                position: 'top-end',
-                icon: 'error',
-                title: 'Lưu chi tiết đơn hàng thất bại. Vui lòng thử lại!',
-                showConfirmButton: false,
-                timer: 3000
-            });</script>";
-        }
+    // Sử dụng hàm confirm_order từ cart class
+    $result = $ct->confirm_order($customer_id, $address);
+    
+    if ($result === "Đơn hàng đã được xác nhận") {
+        echo "<script>Swal.fire({
+            position: 'top-end',
+            icon: 'success',
+            title: '$result',
+            showConfirmButton: false,
+            timer: 1500
+        });</script>";
+        // Chuyển hướng sau khi đặt hàng thành công
+        header("Location: index.php");
+        exit();
     } else {
         echo "<script>Swal.fire({
             position: 'top-end',
             icon: 'error',
-            title: 'Đặt hàng thất bại. Vui lòng thử lại!',
+            title: '$result',
             showConfirmButton: false,
-            timer: 3000
+            timer: 1500
         });</script>";
     }
 }

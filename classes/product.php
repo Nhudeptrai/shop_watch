@@ -18,6 +18,7 @@ class product
     {
         // Chuẩn hóa dữ liệu
         $productName = mysqli_real_escape_string($this->db->link, $data['productName']);
+        $product_quantity = mysqli_real_escape_string($this->db->link, $data['product_quantity']);
         $brand = mysqli_real_escape_string($this->db->link, $data['brand']);
         $category = mysqli_real_escape_string($this->db->link, $data['category']);
         $product_desc = mysqli_real_escape_string($this->db->link, $data['product_desc']);
@@ -42,14 +43,14 @@ class product
        
         // Kiểm tra có đầy đủ các trường không
 
-        if ($productName == "" || $brand == "" || $category == "" || $product_desc == "" || $price == "" || $type_pd == "" || $file_name == "") {
+        if ($productName == "" || $product_quantity == ""|| $brand == "" || $category == "" || $product_desc == "" || $price == "" || $type_pd == "" || $file_name == "") {
             $alert = "Các trường không được rỗng";
             return $alert;
         }
         else {
             move_uploaded_file($file_temp, $uploaded_image);
-            $query = "INSERT INTO tbl_product(productName, brandId, catId, product_desc, price, type_pd, image)
-            VALUES('$productName', '$brand', '$category', '$product_desc', '$price', '$type_pd', '$unique_image')";
+            $query = "INSERT INTO tbl_product(productName,product_quantity, brandId, catId, product_desc, price, type_pd, image)
+            VALUES('$productName', '$product_quantity', '$brand', '$category', '$product_desc', '$price', '$type_pd', '$unique_image')";
 
             $result = $this->db->insert($query);
 
@@ -107,6 +108,7 @@ class product
     public function update_product($data, $files, $id)
     {
         $productName = mysqli_real_escape_string($this->db->link, $data['productName']);
+        $product_quantity = mysqli_real_escape_string($this->db->link, $data['product_quantity']);
         $brand = mysqli_real_escape_string($this->db->link, $data['brand']);
         $category = mysqli_real_escape_string($this->db->link, $data['category']);
         $product_desc = mysqli_real_escape_string($this->db->link, $data['product_desc']);
@@ -114,7 +116,7 @@ class product
         $type_pd = mysqli_real_escape_string($this->db->link, $data['type_pd']);
 
         // Kiểm tra nếu thiếu thông tin
-        if (empty($productName) || empty($brand) || empty($category) || empty($product_desc) || empty($price) || $type_pd === "") {
+        if (empty($productName) || empty($product_quantity) || empty($brand) || empty($category) || empty($product_desc) || empty($price) || $type_pd === "") {
             return "<span class='error'>Các trường không được để trống</span>";
         }
 
@@ -143,6 +145,7 @@ class product
 
             $query = "UPDATE tbl_product SET 
                 productName   = '$productName',
+                product_quantity   = '$product_quantity',
                 brandId       = '$brand',
                 catId         = '$category',
                 type_pd       = '$type_pd',
@@ -154,6 +157,7 @@ class product
             // Không chọn ảnh mới thì không update ảnh
             $query = "UPDATE tbl_product SET 
                 productName   = '$productName',
+                product_quantity   = '$product_quantity',
                 brandId       = '$brand',
                 catId         = '$category',
                 type_pd       = '$type_pd',
@@ -210,26 +214,26 @@ class product
     }
     public function getproductbyId($id)
     {
-        $query = "SELECT * FROM tbl_product WHERE productId = '$id'";
+        $query = "SELECT * FROM tbl_product WHERE productId = '$id'  AND isActive = true";
         $result = $this->db->select($query);
         return $result;
     }
     // End backend
     public function getproduct_feathered()
     {
-        $query = "SELECT * FROM tbl_product WHERE type_pd = '1'";
+        $query = "SELECT * FROM tbl_product WHERE type_pd = '1' AND isActive = true";
         $result = $this->db->select($query);
         return $result;
     }
     public function getproduct_new()
     {
-        $query = "SELECT * FROM tbl_product  order by productId desc ";
+        $query = "SELECT * FROM tbl_product WHERE isActive = true order by productId desc ";
         $result = $this->db->select($query);
         return $result;
     }
     public function filterproduct_new($brandId, $catId, $keyword, $min, $max)
     {
-        $query = "SELECT * FROM tbl_product ";
+        $query = "SELECT * FROM tbl_product WHERE isActive = true ";
         $whereQuery = "WHERE ";
 
         if (!empty($brandId)) $whereQuery .= "brandId = $brandId ";
@@ -246,7 +250,7 @@ class product
         $query = "
         SELECT tbl_product.*, tbl_category.catName, tbl_brand.brandName
         FROM tbl_product INNER JOIN tbl_category ON tbl_product.catId = tbl_category.catId
-        INNER JOIN tbl_brand ON tbl_product.brandId = tbl_brand.brandId WHERE tbl_product.productId = '$id'
+        INNER JOIN tbl_brand ON tbl_product.brandId = tbl_brand.brandId WHERE tbl_product.productId = '$id AND tbl_product.isActive = true'
 
         ";
 

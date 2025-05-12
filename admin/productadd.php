@@ -123,12 +123,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit'])) {
                             </select>
                         </div>
                         <div>
+                            <label for="quantity" class="block text-gray-700 font-semibold mb-2">Tồn kho</label>
+                            <input type="number" id="quantity" name="product_quantity" min ="1" value ="10"placeholder="Số lượng tồn kho" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-700" />
+                        </div>
+                        <div>
                         <label for="product_desc" class="block text-gray-700 font-semibold mb-2">Mô tả</label>
                             <textarea type ="text"id="product_desc" name="product_desc" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-700 "></textarea>
                         </div>
                         <div>
                             <label for="price" class="block text-gray-700 font-semibold mb-2">Giá</label>
-                            <input type="text" id="price" name="price" placeholder="Nhập giá..." class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-700" />
+                            <input type="number" id="price" name="price" placeholder="Nhập giá..." class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-700" />
                         </div>
                         <div>
                             <label for="image" class="block text-gray-700 font-semibold mb-2">Tải ảnh lên</label>
@@ -175,6 +179,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit'])) {
         $('#productForm').submit(function(e) {
             const productName = $('#productName').val().trim();
             const price = $('#price').val().trim();
+            const quantity = $('#quantity').val().trim();
             const image = $('#image').val();
             const productDesc = $('#product_desc').val().trim();
 
@@ -184,6 +189,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit'])) {
                     icon: 'error',
                     title: 'Lỗi!',
                     text: 'Tên sản phẩm không được để trống!',
+                    showConfirmButton: false,
+                    timer: 2000
+                });
+                return;
+            }
+            if (!price || isNaN(quantity) || parseFloat(quantity) <= 0) {
+                e.preventDefault();
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Lỗi!',
+                    text: 'Số lượng phải là số hợp lệ và lớn hơn 0!',
                     showConfirmButton: false,
                     timer: 2000
                 });

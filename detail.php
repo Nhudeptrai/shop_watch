@@ -11,10 +11,6 @@ if (!isset($_GET['proid']) || $_GET['proid'] == NULL) {
     $id = $_GET['proid'];
 }
 
-// if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['submit'])) {
-//     $quantity = $_POST['quantity'];
-//     $addtoCart = $ct->add_to_cart($quantity, $id);
-// }
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['submit'])) {
   // Kiểm tra xem người dùng đã đăng nhập chưa
   if (!Session::get('customer_login')) {
@@ -23,9 +19,44 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['submit'])) {
       echo "<script>window.location ='login.php';</script>";
       exit();
   } else {
-      $quantity = $_POST['quantity'];
+    $product_quantity = $_POST['product_quantity'];
+          $quantity = $_POST['quantity'];
       $addtoCart = $ct->add_to_cart($quantity, $id);
+      if ($quantity > $result_details['product_quantity']) {
+        echo "<script>Swal.fire({
+            position: 'top-end',
+            icon: 'error',
+            title: 'Số lượng vượt quá tồn kho!',
+            showConfirmButton: false,
+            timer: 3000
+        });</script>";
   }
+}
+}
+
+// Xử lý thanh toán ngay
+if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['buy_now'])) {
+  if (!Session::get('customer_login')) {
+      Session::set('redirect_url', $_SERVER['REQUEST_URI']);
+      echo "<script>window.location ='login.php';</script>";
+      exit();
+  }  // Kiểm tra số lượng tồn kho
+  if ($quantity > $result_details['product_quantity']) {
+      echo "<script>Swal.fire({
+          position: 'top-end',
+          icon: 'error',
+          title: 'Số lượng vượt quá tồn kho!',
+          showConfirmButton: false,
+          timer: 3000
+      });</script>";
+  } else {
+      $addtoCart = $ct->add_to_cart($quantity, $id);
+      if ($addtoCart) {
+          echo "<script>window.location ='order.php';</script>";
+          exit();
+      }
+  }
+
 }
 ?>
 <!DOCTYPE html>
@@ -52,29 +83,25 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['submit'])) {
         <div>
           <h1 class="font-bold text-4xl mb-4"><?php echo $result_details['productName']; ?></h1>
           <h2 class="font-bold text-3xl text-red-700 mb-4"><?php echo number_format($result_details['price']) . " VNĐ"; ?></h2>
-
+        
           <!-- Bắt đầu form thêm vào giỏ hàng -->
           <form method="post" action="">
             <div class="text-xl mb-4">
               Số lượng:
               <button type="button" onclick="changeNumber(-1)" class="border-1 border-red-700 bg-red-700 text-white cursor-pointer hover:bg-red-600 duration-150 rounded-ss-2xl rounded-es-2xl px-2 -me-2">&minus;</button>
-              <input type="text" value="1" name="quantity" id="quantity" readonly class="border-1 border-red-700 bg-white text-center w-15" />
+              <input type="number" value="1" name="quantity" id="quantity" readonly class="border-1 border-red-700 bg-white text-center w-15" />
+              <input type="hidden" value="<?php echo $result_details['product_quantity']; ?>" name="product_stock" -white text-center w-15" />
               <button type="button" onclick="changeNumber(1)" class="border-1 border-red-700 bg-red-700 text-white cursor-pointer hover:bg-red-600 duration-150 rounded-se-2xl rounded-ee-2xl px-2 -ms-2">+</button>
             </div>
+            <h1 class="font-bold text-2xl mb-4">Tồn kho: <?php echo $result_details['product_quantity']; ?></h1>
 
             <div class="text-xl">
               <button type="submit" name="submit" class="px-3 py-1 rounded-xl bg-red-50 border-1 border-red-300 text-red-700 hover:border-red-700 hover:bg-gradient-to-b hover:from-red-700 hover:to-red-800 hover:text-white duration-150 cursor-pointer me-4 px-4">
                 <i class="fa fa-cart-plus" aria-hidden="true"></i> Thêm vào giỏ hàng
               </button>
-              <?php
-        $redirectUrl = 'login.php';
-        if (Session::get('customer_login')) {
-            $redirectUrl = 'order.php';
-        }
-        ?>
-              <a href="<?php echo $redirectUrl; ?>" class="px-3 py-1 rounded-xl bg-red-50 border-1 border-red-300 text-red-700 hover:border-red-700 hover:bg-gradient-to-b hover:from-red-700 hover:to-red-800 hover:text-white duration-150 cursor-pointer px-4">
+              <button type="submit" name="buy_now" class="px-3 py-1 rounded-xl bg-red-50 border-1 border-red-300 text-red-700 hover:border-red-700 hover:bg-gradient-to-b hover:from-red-700 hover:to-red-800 hover:text-white duration-150 cursor-pointer px-4">
                 <i class="fa fa-shopping-cart" aria-hidden="true"></i> Thanh toán ngay!
-              </a>
+              </button>
             </div>
           </form>
 

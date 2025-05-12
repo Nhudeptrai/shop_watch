@@ -151,6 +151,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit'])) {
                                 </select>
                             </div>
                             <div>
+                            <label for="quantity" class="block text-gray-700 font-semibold mb-2">Tồn kho</label>
+                            <input type="number" id="quantity" name="product_quantity" min ="1" value ="<?php echo$result_product['product_quantity']?>"placeholder="Số lượng tồn kho" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-700" />
+                        </div>
+                            <div>
                                 <label for="product_desc" class="block text-gray-700 font-semibold mb-2">Mô tả sản phẩm</label>
                                 <textarea id="product_desc" name="product_desc" rows="5" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-700" placeholder="Nhập mô tả sản phẩm..."><?php echo htmlspecialchars($result_product['product_desc']); ?></textarea>
                             </div>
@@ -199,8 +203,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit'])) {
             const category = $('#category').val();
             const brand = $('#brand').val();
             const price = $('#price').val().trim();
+            const quantity = $('#quantity').val().trim();
 
-            if (!productName || !category || !brand || !price) {
+            if (!productName || !category || !brand || !price || !quantity) {
                 e.preventDefault();
                 Swal.fire({
                     icon: 'error',
@@ -215,6 +220,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit'])) {
                     icon: 'error',
                     title: 'Lỗi!',
                     text: 'Giá sản phẩm phải là số dương!',
+                    showConfirmButton: false,
+                    timer: 2000
+                });
+            }else if (isNaN(quantity) || quantity <= 0) {
+                e.preventDefault();
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Lỗi!',
+                    text: 'Số lượng sản phẩm phải là số > 0!',
                     showConfirmButton: false,
                     timer: 2000
                 });
