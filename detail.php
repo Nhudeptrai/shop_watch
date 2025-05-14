@@ -98,8 +98,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['buy_now'])) {
               <input type="hidden" value="<?php echo $result_details['product_quantity']; ?>" id="product_stock" />
               <button type="button" onclick="changeNumber(1)" class="border-1 border-red-700 bg-red-700 text-white cursor-pointer hover:bg-red-600 duration-150 rounded-se-2xl rounded-ee-2xl px-2 -ms-2">+</button>
             </div>
-            <h1 class="font-bold text-2xl mb-4">Tồn kho: <?php echo $result_details['product_quantity']; ?></h1>
+            <h1 class="font-bold text-2xl mb-4">Số lượng còn: <?php echo $result_details['product_quantity']; ?></h1>
+          <?php
+          
+         // Kiểm tra số lượng tồn kho để hiển thị hoặc ẩn các nút
+         if ($result_details['product_quantity'] > 0) {
 
+       
+          ?>
             <div class="text-xl">
               <button type="submit" name="submit" class="px-3 py-1 rounded-xl bg-red-50 border-1 border-red-300 text-red-700 hover:border-red-700 hover:bg-gradient-to-b hover:from-red-700 hover:to-red-800 hover:text-white duration-150 cursor-pointer me-4 px-4">
                 <i class="fa fa-cart-plus" aria-hidden="true"></i> Thêm vào giỏ hàng
@@ -108,6 +114,16 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['buy_now'])) {
                 <i class="fa fa-shopping-cart" aria-hidden="true"></i> Thanh toán ngay!
               </button>
             </div>
+          
+                  <?php
+                    } else {
+                    ?>
+                        <div class="text-xl text-red-700">
+                            <p>Hết hàng! </p>
+                        </div>
+                    <?php
+                    }
+                    ?>
           </form>
 
           <!-- Thông báo thêm vào giỏ -->

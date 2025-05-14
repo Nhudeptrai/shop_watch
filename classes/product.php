@@ -214,7 +214,7 @@ class product
     }
     public function getproductbyId($id)
     {
-        $query = "SELECT * FROM tbl_product WHERE productId = '$id'  AND isActive = true";
+        $query = "SELECT * FROM tbl_product WHERE productId = '$id' AND isActive = true";
         $result = $this->db->select($query);
         return $result;
     }
@@ -227,21 +227,24 @@ class product
     }
     public function getproduct_new()
     {
-        $query = "SELECT * FROM tbl_product WHERE isActive = true order by productId desc ";
+        $query = "SELECT * FROM tbl_product WHERE isActive = true order by productId desc";
         $result = $this->db->select($query);
         return $result;
     }
     public function filterproduct_new($brandId, $catId, $keyword, $min, $max)
     {
         $query = "SELECT * FROM tbl_product WHERE isActive = true ";
-        $whereQuery = "WHERE ";
+        $whereQuery = "";
 
-        if (!empty($brandId)) $whereQuery .= "brandId = $brandId ";
-        if (!empty($catId)) $whereQuery .= (strlen($whereQuery) == 6 ? "" : "AND ") . "catId = $catId ";
-        if (!empty($keyword)) $whereQuery .= (strlen($whereQuery) == 6 ? "" : "AND ") . "productName LIKE '%$keyword%' ";
-        if ($max != NULL) $whereQuery .= (strlen($whereQuery) == 6 ? "" : "AND ") . "price BETWEEN $min AND $max ";
+        if (!empty($brandId)) $whereQuery .= "AND brandId = $brandId ";
+        if (!empty($catId)) $whereQuery .= "AND catId = $catId ";
+        if (!empty($keyword)) $whereQuery .= "AND productName LIKE '%$keyword%' ";
+        if ($max != NULL) $whereQuery .= "AND price BETWEEN $min AND $max ";
         
-        $query .= (strlen($whereQuery) == 6 ? "" : $whereQuery) . "ORDER BY productId DESC";        
+        $query = $query . $whereQuery . "ORDER BY productId DESC";
+
+        echo $query;
+
         $result = $this->db->select($query);
         return $result;
     }
@@ -250,7 +253,7 @@ class product
         $query = "
         SELECT tbl_product.*, tbl_category.catName, tbl_brand.brandName
         FROM tbl_product INNER JOIN tbl_category ON tbl_product.catId = tbl_category.catId
-        INNER JOIN tbl_brand ON tbl_product.brandId = tbl_brand.brandId WHERE tbl_product.productId = '$id AND tbl_product.isActive = true'
+        INNER JOIN tbl_brand ON tbl_product.brandId = tbl_brand.brandId WHERE tbl_product.productId = '$id'
 
         ";
 

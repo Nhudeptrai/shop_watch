@@ -207,7 +207,7 @@ $total_pages = ceil($total_products / $limit);
                                     <th>Tên sản phẩm</th>
                                     <th>Giá</th>
                                     <th>Hình ảnh</th>
-                                    <th>Tồn kho</th>
+                                    <th>Số lượng</th>
                                     <th>Danh mục</th>
                                     <th>Thương hiệu</th>
                                     <th>Mô tả</th>

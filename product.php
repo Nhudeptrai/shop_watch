@@ -98,7 +98,7 @@
 
         <!-- Combobox thương hiệu -->
         <div class="mt-5 flex justify-center">
-        <h1 class="text-red-700 font-bold text-3xl text-left "> Lọc thương hiệu</h1>
+        <h1 class="text-red-700 font-bold text-3xl text-left "> Lọc thương hiệu </h1>
           <select id="brand-select" class="w-64 border border-red-200 rounded-2xl px-3 py-2 bg-white text-lg text-red-700 focus:ring-2 focus:ring-red-700">
             <option value="">Tất cả</option>
             <?php
@@ -131,7 +131,7 @@
               $i += 1;
         ?>
           <a href="detail.php?proid=<?php echo $result_new['productId'] ?>" class="grid text-center rounded-lg text-red-700 bg-gray-100 border-2 border-gray-200 w-full pb-2 product-shadow-hover hover:bg-red-50 hover:border-red-50 duration-150 cursor-pointer">
-            <img src="admin/uploads/<?php echo $result_new['image'] ?>" alt="product" class="rounded-se-lg rounded-ss-lg max-w-50 m-auto object-cover aspect-square" />
+            <img src="admin/uploads/<?php echo $result_new['image'] ?>" alt="product" class="rounded-se-lg rounded-ss-lg max-w-55 m-auto object-cover aspect-square" />
             <div class="text-xl/9 font-bold py-2"><?php echo htmlspecialchars($result_new['productName']) ?></div>
             <div><?php echo number_format($result_new['price'], 0, ',', '.') . " đ" ?></div>
           </a>

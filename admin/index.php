@@ -54,6 +54,33 @@ if ($order_status_result) {
     }
 }
 
+// Dữ liệu doanh thu theo tháng và năm
+$selected_year = isset($_POST['revenue_year']) ? (int)$_POST['revenue_year'] : date('Y'); // Mặc định là năm hiện tại
+$revenue_by_month = array_fill(1, 12, 0); // Khởi tạo mảng doanh thu cho 12 tháng
+$revenue_query = "SELECT MONTH(orderDate) as month, SUM(totalPrice) as total 
+                  FROM tbl_order 
+                  WHERE status = 'Đã hoàn thành' AND YEAR(orderDate) = ? 
+                  GROUP BY MONTH(orderDate)";
+$revenue_result = $db->select($revenue_query, [$selected_year]);
+if ($revenue_result) {
+    while ($row = $revenue_result->fetch_assoc()) {
+        $revenue_by_month[$row['month']] = $row['total'];
+    }
+}
+
+// Lấy danh sách năm có đơn hàng
+$years_query = "SELECT DISTINCT YEAR(orderDate) as year 
+                FROM tbl_order 
+                WHERE status = 'Đã hoàn thành' 
+                ORDER BY year DESC";
+$years_result = $db->select($years_query);
+$years = [];
+if ($years_result) {
+    while ($row = $years_result->fetch_assoc()) {
+        $years[] = $row['year'];
+    }
+}
+
 // Xử lý thống kê khách hàng theo khoảng thời gian
 $top_customers = [];
 $start_date = '';
@@ -185,8 +212,8 @@ else echo '<script>Swal.fire({icon: "error", title: "Lỗi!", text: "Khoảng th
 </head>
 <body class="bg-gray-100 font-sans">
     <div class="flex flex-col min-h-screen">
-     <!-- Header -->
-     <?php include_once 'inc/header.php'; ?>
+        <!-- Header -->
+        <?php include_once 'inc/header.php'; ?>
 
         <!-- Main Content -->
         <div class="flex flex-1">
@@ -213,6 +240,24 @@ else echo '<script>Swal.fire({icon: "error", title: "Lỗi!", text: "Khoảng th
                         </div>
                         <button type="submit" class="btn bg-red-700 text-white px-4 py-3 rounded-lg hover:bg-red-800 sm:mt-0">
                             <i class="fas fa-chart-bar mr-2"></i> Thống kê
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Form chọn năm cho thống kê doanh thu -->
+                <div class="bg-white shadow-lg rounded-lg p-6 mb-6">
+                    <h3 class="text-xl font-semibold text-gray-700 mb-4">Thống kê doanh thu theo tháng</h3>
+                    <form id="revenueForm" method="POST" class="flex flex-col sm:flex-row sm:items-end gap-4">
+                        <div>
+                            <label for="revenue_year" class="block text-gray-700 font-semibold mb-2">Chọn năm</label>
+                            <select id="revenue_year" name="revenue_year" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-700">
+                                <?php foreach ($years as $year): ?>
+                                    <option value="<?php echo $year; ?>" <?php echo $year == $selected_year ? 'selected' : ''; ?>><?php echo $year; ?></option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn bg-red-700 text-white px-4 py-3 rounded-lg hover:bg-red-800">
+                            <i class="fas fa-chart-line mr-2"></i> Xem thống kê
                         </button>
                     </form>
                 </div>
@@ -308,6 +353,13 @@ else echo '<script>Swal.fire({icon: "error", title: "Lỗi!", text: "Khoảng th
                     </div>
                 </div>
 
+
+                <!-- Biểu đồ doanh thu theo tháng -->
+                <div class="bg-white shadow-lg rounded-lg p-6">
+                    <h3 class="text-xl font-semibold text-gray-700 mb-4">Doanh thu theo tháng (Năm <?php echo $selected_year; ?>)</h3>
+                    <canvas id="revenueChart"></canvas>
+                </div>
+                
                 <!-- Chart -->
                 <div class="bg-white shadow-lg rounded-lg p-6">
                     <h3 class="text-xl font-semibold text-gray-700 mb-4">Thống kê đơn hàng theo trạng thái</h3>
@@ -352,6 +404,43 @@ else echo '<script>Swal.fire({icon: "error", title: "Lỗi!", text: "Khoảng th
                 plugins: {
                     legend: {
                         display: false
+                    }
+                }
+            }
+        });
+
+        // Khởi tạo biểu đồ doanh thu theo tháng
+        const revenueCtx = document.getElementById('revenueChart').getContext('2d');
+        new Chart(revenueCtx, {
+            type: 'line',
+            data: {
+                labels: ['Tháng 1', 'Tháng 2', 'Tháng 3', 'Tháng 4', 'Tháng 5', 'Tháng 6', 'Tháng 7', 'Tháng 8', 'Tháng 9', 'Tháng 10', 'Tháng 11', 'Tháng 12'],
+                datasets: [{
+                    label: 'Doanh thu (VNĐ)',
+                    data: [
+                        <?php echo implode(',', array_map(function($value) { return $value ?: 0; }, $revenue_by_month)); ?>
+                    ],
+                    backgroundColor: 'rgba(185, 28, 28, 0.2)',
+                    borderColor: '#b91c1c',
+                    borderWidth: 2,
+                    fill: true,
+                    tension: 0.4
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function(value) {
+                                return value.toLocaleString('vi-VN') + ' VNĐ';
+                            }
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: true
                     }
                 }
             }

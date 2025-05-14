@@ -330,10 +330,11 @@ class cart
                 $quantity = $item['quantity'];
                 $price = $item['price'];
                 $product_name = $item['productName'];
+                $image = $item['image'];
 
                 // Thêm chi tiết đơn hàng
-                $detail_query = "INSERT INTO tbl_order_details(orderId, productId, productName, quantity, price) 
-                                VALUES('$order_id', '$product_id', '$product_name', '$quantity', '$price')";
+                $detail_query = "INSERT INTO tbl_order_details(orderId, productId, productName, quantity, price,image) 
+                                VALUES('$order_id', '$product_id', '$product_name', '$quantity', '$price','$image')";
                 $detail_result = $this->db->insert($detail_query);
 
                 if (!$detail_result) {
@@ -359,6 +360,7 @@ class cart
             return $e->getMessage();
         }
     }
+
 
     public function update_order_status($orderId, $status) {
         $orderId = mysqli_real_escape_string($this->db->link, $orderId);
