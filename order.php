@@ -1,4 +1,9 @@
 <?php
+// Bật hiển thị lỗi để debug
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+
 include_once 'inc/header.php';
 include_once 'inc/style.php';
 include_once 'lib/session.php';
@@ -26,28 +31,77 @@ if ($login_check) {
     exit();
 }
 
-// Lấy danh sách sản phẩm trong giỏ hàng
-$cart_products = $ct->get_product_cart();
+// Kiểm tra xem có phải "Thanh toán ngay" không
+$is_buy_now = isset($_GET['proid']) && isset($_GET['quantity']);
+$products_to_display = [];
 $total_price = 0;
 
-// Kiểm tra giỏ hàng trống
-if (!$cart_products || $cart_products->num_rows == 0) {
-    echo "<script>Swal.fire({
-        position: 'top-end',
-        icon: 'warning',
-        title: 'Giỏ hàng trống! Vui lòng thêm sản phẩm.',
-        showConfirmButton: false,
-        timer: 3000
-    }).then(() => {
-        window.location.href = 'product.php';
-    });</script>";
-    exit();
-}
+if ($is_buy_now) {
+    // Trường hợp "Thanh toán ngay"
+    $proid = (int)$_GET['proid'];
+    $quantity = (int)$_GET['quantity'];
 
-// Tính tổng giá trị giỏ hàng
-$cart_products->data_seek(0);
-while ($product = $cart_products->fetch_assoc()) {
-    $total_price += $product['price'] * $product['quantity'];
+    // Lấy thông tin sản phẩm từ tbl_product
+    $query = "SELECT * FROM tbl_product WHERE productId = '$proid'";
+    $product_result = $db->select($query);
+    
+    if (!$product_result || $product_result->num_rows == 0) {
+        echo "<script>Swal.fire({
+            position: 'top-end',
+            icon: 'error',
+            title: 'Sản phẩm không tồn tại!',
+            showConfirmButton: false,
+            timer: 3000
+        }).then(() => {
+            window.location.href = 'product.php';
+        });</script>";
+        exit();
+    }
+
+    $product = $product_result->fetch_assoc();
+    if ($quantity > $product['product_quantity']) {
+        echo "<script>Swal.fire({
+            position: 'top-end',
+            icon: 'error',
+            title: 'Số lượng vượt quá tồn kho!',
+            showConfirmButton: false,
+            timer: 3000
+        }).then(() => {
+            window.location.href = 'detail.php?proid=$proid';
+        });</script>";
+        exit();
+    }
+
+    // Chuẩn bị dữ liệu để hiển thị (một sản phẩm duy nhất)
+    $products_to_display[] = [
+        'productId' => $product['productId'],
+        'productName' => $product['productName'],
+        'image' => $product['image'],
+        'price' => $product['price'],
+        'quantity' => $quantity
+    ];
+    $total_price = $product['price'] * $quantity;
+} else {
+    // Trường hợp thanh toán từ giỏ hàng
+    $cart_products = $ct->get_product_cart();
+    if (!$cart_products || $cart_products->num_rows == 0) {
+        echo "<script>Swal.fire({
+            position: 'top-end',
+            icon: 'warning',
+            title: 'Giỏ hàng trống! Vui lòng thêm sản phẩm.',
+            showConfirmButton: false,
+            timer: 3000
+        }).then(() => {
+            window.location.href = 'product.php';
+        });</script>";
+        exit();
+    }
+
+    // Chuẩn bị dữ liệu từ giỏ hàng để hiển thị
+    while ($product = $cart_products->fetch_assoc()) {
+        $products_to_display[] = $product;
+        $total_price += $product['price'] * $product['quantity'];
+    }
 }
 
 // Xử lý nút thanh toán
@@ -62,7 +116,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['name']) && isset($_POS
     $customer_id = Session::get('customer_id');
 
     // Gọi hàm xác nhận đơn hàng
-    $result = $ct->confirm_order($customer_id, $name, $address, $phone, $payment_method);
+    if ($is_buy_now) {
+        // Thanh toán ngay: Tạo đơn hàng từ sản phẩm duy nhất
+        $result = $ct->confirm_order_direct($customer_id, $name, $address, $phone, $payment_method, $products_to_display);
+    } else {
+        // Thanh toán từ giỏ hàng
+        $result = $ct->confirm_order($customer_id, $name, $address, $phone, $payment_method);
+    }
     
     if ($result === "Đơn hàng đã được xác nhận") {
         echo "<script>Swal.fire({
@@ -219,8 +279,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['name']) && isset($_POS
                         </thead>
                         <tbody class="border-red-700">
                             <?php
-                            $cart_products->data_seek(0);
-                            while ($product = $cart_products->fetch_assoc()) {
+                            foreach ($products_to_display as $product) {
                                 $subtotal = $product['price'] * $product['quantity'];
                             ?>
                                 <tr class="odd:bg-red-100 even:bg-white">
@@ -281,8 +340,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['name']) && isset($_POS
                     </thead>
                     <tbody class="border-red-700">
                         <?php
-                        $cart_products->data_seek(0);
-                        while ($product = $cart_products->fetch_assoc()) {
+                        foreach ($products_to_display as $product) {
                             $subtotal = $product['price'] * $product['quantity'];
                         ?>
                             <tr class="odd:bg-red-100 even:bg-white">
@@ -300,7 +358,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['name']) && isset($_POS
                         ?>
                     </tbody>
                     <tfoot>
-                     
                         <tr>
                             <td colspan="3"></td>
                             <td class="bg-red-700 text-white font-bold text-center py-1 text-xl">TỔNG</td>

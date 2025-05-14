@@ -17,37 +17,7 @@ class cart
     }
     public function add_to_cart($quantity, $id)
     {
-        // $quantity = $this->fm->validation($quantity);
-        // $quantity = mysqli_real_escape_string($this->db->link, $quantity);
-        // $id = mysqli_real_escape_string($this->db->link, $id);
-        // $sessionId = session_id();
-    
-        // $query = "SELECT * FROM tbl_product WHERE productId ='$id'";
-        // $result = $this->db->select($query)->fetch_assoc();
-    
-        // $image = $result["image"];
-        // $price = $result["price"];
-        // $productName = $result["productName"];
-    
-        // // Kiểm tra trùng
-        // $check_query = "SELECT * FROM tbl_cart WHERE productId ='$id' AND sessionId ='$sessionId'";
-        // $check_result = $this->db->select($check_query);
-    
-        // if ($check_result) {
-        //     return "Sản phẩm đã được thêm vào giỏ hàng";
-        // } else {
-        //     $query_insert = "INSERT INTO tbl_cart(productId, quantity, sessionId, image, price, productName)
-        //                      VALUES('$id', '$quantity', '$sessionId', '$image', '$price', '$productName')";
-        //     $insert_cart = $this->db->insert($query_insert);
-    
-        //     if ($insert_cart) {
-        //         header('Location:cart.php');
-        //         exit();
-        //     } else {
-        //         header('Location:404.php');
-        //         exit();
-        //     }
-        // }
+     
         $quantity = (int)$this->fm->validation($quantity);
         $id = (int)mysqli_real_escape_string($this->db->link, $id);
         $sessionId = session_id();
@@ -89,13 +59,7 @@ class cart
         }
     }
     
-    // public function get_product_cart()
-    // {
-    //     $sessionId = session_id();
-    //     $query = "SELECT * FROM tbl_cart WHERE sessionId = '$sessionId'";
-    //     $result = $this->db->select($query);
-    //     return $result;
-    // }
+    
     public function get_product_cart()
     {
         $sessionId = session_id();
