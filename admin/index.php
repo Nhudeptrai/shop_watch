@@ -244,23 +244,7 @@ else echo '<script>Swal.fire({icon: "error", title: "Lỗi!", text: "Khoảng th
                     </form>
                 </div>
 
-                <!-- Form chọn năm cho thống kê doanh thu -->
-                <div class="bg-white shadow-lg rounded-lg p-6 mb-6">
-                    <h3 class="text-xl font-semibold text-gray-700 mb-4">Thống kê doanh thu theo tháng</h3>
-                    <form id="revenueForm" method="POST" class="flex flex-col sm:flex-row sm:items-end gap-4">
-                        <div>
-                            <label for="revenue_year" class="block text-gray-700 font-semibold mb-2">Chọn năm</label>
-                            <select id="revenue_year" name="revenue_year" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-700">
-                                <?php foreach ($years as $year): ?>
-                                    <option value="<?php echo $year; ?>" <?php echo $year == $selected_year ? 'selected' : ''; ?>><?php echo $year; ?></option>
-                                <?php endforeach; ?>
-                            </select>
-                        </div>
-                        <button type="submit" class="btn bg-red-700 text-white px-4 py-3 rounded-lg hover:bg-red-800">
-                            <i class="fas fa-chart-line mr-2"></i> Xem thống kê
-                        </button>
-                    </form>
-                </div>
+          
 
                 <!-- Bảng thống kê khách hàng -->
                 <?php if (!empty($top_customers)) { ?>
@@ -352,7 +336,23 @@ else echo '<script>Swal.fire({icon: "error", title: "Lỗi!", text: "Khoảng th
                         </div>
                     </div>
                 </div>
-
+                          <!-- Form chọn năm cho thống kê doanh thu -->
+                <div class="bg-white shadow-lg rounded-lg p-6 mb-6">
+                    <h3 class="text-xl font-semibold text-gray-700 mb-4">Thống kê doanh thu theo tháng</h3>
+                    <form id="revenueForm" method="POST" class="flex flex-col sm:flex-row sm:items-end gap-4">
+                        <div>
+                            <label for="revenue_year" class="block text-gray-700 font-semibold mb-2">Chọn năm</label>
+                            <select id="revenue_year" name="revenue_year" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-700">
+                                <?php foreach ($years as $year): ?>
+                                    <option value="<?php echo $year; ?>" <?php echo $year == $selected_year ? 'selected' : ''; ?>><?php echo $year; ?></option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn bg-red-700 text-white px-4 py-3 rounded-lg hover:bg-red-800">
+                            <i class="fas fa-chart-line mr-2"></i> Xem thống kê
+                        </button>
+                    </form>
+                </div>
 
                 <!-- Biểu đồ doanh thu theo tháng -->
                 <div class="bg-white shadow-lg rounded-lg p-6">
