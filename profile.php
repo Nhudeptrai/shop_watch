@@ -21,7 +21,7 @@ if (!$user_data) {
 
 $update_result = '';
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update'])) {
-    $update_result = $cs->update_customer($_POST, $customer_id);
+    $update_result = $cs->update_customer($_POST, $customer_id, 'profile.php');
 }
 ?>
 

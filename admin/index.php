@@ -30,7 +30,7 @@ $total_orders_result = $db->select($total_orders_query);
 $total_orders = $total_orders_result ? $total_orders_result->fetch_assoc()['total'] : 0;
 
 // Tổng doanh thu (từ đơn hàng Đã hoàn thành)
-$total_revenue_query = "SELECT SUM(totalPrice) as total FROM tbl_order WHERE status = 'Đã hoàn thành'";
+$total_revenue_query = "SELECT SUM(totalPrice) as total FROM tbl_order WHERE `status` in ('Đã xác nhận', 'Đã hoàn thành')";
 $total_revenue_result = $db->select($total_revenue_query);
 $total_revenue = $total_revenue_result ? $total_revenue_result->fetch_assoc()['total'] : 0;
 
@@ -59,7 +59,7 @@ $selected_year = isset($_POST['revenue_year']) ? (int)$_POST['revenue_year'] : d
 $revenue_by_month = array_fill(1, 12, 0); // Khởi tạo mảng doanh thu cho 12 tháng
 $revenue_query = "SELECT MONTH(orderDate) as month, SUM(totalPrice) as total 
                   FROM tbl_order 
-                  WHERE status = 'Đã hoàn thành' AND YEAR(orderDate) = ? 
+                  WHERE `status` IN ('Đã xác nhận', 'Đã hoàn thành') AND YEAR(orderDate) = ? 
                   GROUP BY MONTH(orderDate)";
 $revenue_result = $db->select($revenue_query, [$selected_year]);
 if ($revenue_result) {

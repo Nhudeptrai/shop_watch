@@ -123,8 +123,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit'])) {
                             </select>
                         </div>
                         <div>
-                            <label for="quantity" class="block text-gray-700 font-semibold mb-2">Tồn kho</label>
-                            <input type="number" id="quantity" name="product_quantity" min ="1" value ="10"placeholder="Số lượng tồn kho" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-700" />
+                            <label for="quantity" class="block text-gray-700 font-semibold mb-2">Số lượng</label>
+                            <input type="number" id="quantity" name="product_quantity" min ="1" value ="10"placeholder="Số lượng " class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-700" />
                         </div>
                         <div>
                         <label for="product_desc" class="block text-gray-700 font-semibold mb-2">Mô tả</label>

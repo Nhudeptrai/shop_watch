@@ -8,7 +8,7 @@
 
   //Đã đảm bảo kiểm tra toàn bộ thông tin ko rỗng ở JS
   if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['username']))
-    $insert_customers = $cs->insert_customers($_POST);
+    $insert_customers = $cs->insert_customers($_POST, 'login.php');
 ?>
 
 <!DOCTYPE html>

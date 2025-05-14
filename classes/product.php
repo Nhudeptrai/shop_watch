@@ -65,22 +65,7 @@ class product
 
     }
 
-
-    // public function show_product()
-    // {
-
-        
-    //     $query = "
-    //     SELECT tbl_product.*, tbl_category.catName, tbl_brand.brandName
-    //     FROM tbl_product INNER JOIN tbl_category ON tbl_product.catId = tbl_category.catId
-    //     INNER JOIN tbl_brand ON tbl_product.brandId = tbl_brand.brandId
-    //     order by tbl_product.productId desc";
-    //     // $query = "SELECT * FROM tbl_product ORDER BY productId DESC";
-
-    //     $result = $this->db->select($query);
-    //     return $result;
-    // }
-    public function show_product($page = 1, $limit = 6) {
+    public function show_product($page = 1, $limit = 6, $name = null) {
         // Tính offset
         $offset = ($page - 1) * $limit;
     
@@ -88,14 +73,16 @@ class product
         $query = "SELECT p.*, c.catName, b.brandName
                   FROM tbl_product p
                   INNER JOIN tbl_category c ON p.catId = c.catId
-                  INNER JOIN tbl_brand b ON p.brandId = b.brandId
-                  ORDER BY p.productId DESC
-                  LIMIT ? OFFSET ?";
+                  INNER JOIN tbl_brand b ON p.brandId = b.brandId ";
+
+        if ($name != null) $query .= "WHERE p.productName LIKE '%$name%' ";
+        $query .= "ORDER BY p.productId DESC LIMIT ? OFFSET ?";
         $params = [(int)$limit, (int)$offset];
         $result = $this->db->select($query, $params);
     
         // Đếm tổng số sản phẩm
         $count_query = "SELECT COUNT(*) as total FROM tbl_product";
+        if ($name != null) $count_query .= " WHERE productName LIKE '%$name%' ";
         $count_result = $this->db->select($count_query);
         $total_products = $count_result ? $count_result->fetch_assoc()['total'] : 0;
     
@@ -104,7 +91,6 @@ class product
             'total_products' => $total_products
         ];
     }
-
     public function update_product($data, $files, $id)
     {
         $productName = mysqli_real_escape_string($this->db->link, $data['productName']);

@@ -17,7 +17,7 @@ class customer
         $this->fm = new Format();
     }
 
-    public function insert_customers($data)
+    public function insert_customers($data, $redirect_url = "customerlist.php")
     {
         $username = mysqli_real_escape_string($this->db->link, $data['username']);
         $email = mysqli_real_escape_string($this->db->link, trim($data['email']));
@@ -84,7 +84,7 @@ class customer
                         showConfirmButton: false,
                         timer: 3000
                     }).then(() => {
-                        window.location.href = 'customerlist.php';
+                        window.location.href = '$redirect_url';
                     });</script>";
                 } else {
                     return "<script>Swal.fire({
@@ -223,7 +223,7 @@ class customer
         ];
     }
 
-    public function update_customer($data, $id)
+    public function update_customer($data, $id, $redirect_url = "customerlist.php")
     {
         $username = mysqli_real_escape_string($this->db->link, $data['username']);
         $fullname = mysqli_real_escape_string($this->db->link, $data['fullname']);
@@ -288,7 +288,7 @@ class customer
                         showConfirmButton: false,
                         timer: 3000
                     }).then(() => {
-                        window.location.href = 'customerlist.php';
+                        window.location.href = '$redirect_url';
                     });</script>";
                 } else {
                     return "<script>Swal.fire({

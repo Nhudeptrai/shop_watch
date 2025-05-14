@@ -292,7 +292,7 @@ $total_pages = ceil($total_orders / $limit);
                         <div class="pagination-container">
                             <div class="pagination">
                                 <!-- Nút Trước -->
-                                <a href="?page=<?php echo $page - 1; ?>&start_date=<?php echo urlencode($start_date); ?>&end_date=<?php echo urlencode($end_date); ?>&status=<?php echo urlencode($status); ?>" class="<?php echo $page <= 1 ? 'disabled' : ''; ?>">
+                                <a href="?page=<?php echo $page - 1; ?>&start_date=<?php echo urlencode($start_date); ?>&end_date=<?php echo urlencode($end_date); ?>&status=<?php echo urlencode($status); ?>&address=<?php echo urlencode($address); ?>" class="<?php echo $page <= 1 ? 'disabled' : ''; ?>">
                                     <i class="fas fa-chevron-left"></i>
                                 </a>
                                 <!-- Số trang -->
@@ -300,23 +300,23 @@ $total_pages = ceil($total_orders / $limit);
                                 $start_page = max(1, $page - 2);
                                 $end_page = min($total_pages, $page + 2);
                                 if ($start_page > 1) {
-                                    echo '<a href="?page=1&start_date=' . urlencode($start_date) . '&end_date=' . urlencode($end_date) . '&status=' . urlencode($status) . '">1</a>';
+                                    echo '<a href="?page=1&start_date=' . urlencode($start_date) . '&end_date=' . urlencode($end_date) . '&status=' . urlencode($status) . '&address=' . urlencode($address) . '">1</a>';
                                     if ($start_page > 2) {
                                         echo '<span>...</span>';
                                     }
                                 }
                                 for ($i = $start_page; $i <= $end_page; $i++) {
-                                    echo '<a href="?page=' . $i . '&start_date=' . urlencode($start_date) . '&end_date=' . urlencode($end_date) . '&status=' . urlencode($status) . '" class="' . ($i == $page ? 'active' : '') . '">' . $i . '</a>';
+                                    echo '<a href="?page=' . $i . '&start_date=' . urlencode($start_date) . '&end_date=' . urlencode($end_date) . '&status=' . urlencode($status) . '&address=' . urlencode($address) . '" class="' . ($i == $page ? 'active' : '') . '">' . $i . '</a>';
                                 }
                                 if ($end_page < $total_pages) {
                                     if ($end_page < $total_pages - 1) {
                                         echo '<span>...</span>';
                                     }
-                                    echo '<a href="?page=' . $total_pages . '&start_date=' . urlencode($start_date) . '&end_date=' . urlencode($end_date) . '&status=' . urlencode($status) . '">' . $total_pages . '</a>';
+                                    echo '<a href="?page=' . $total_pages . '&start_date=' . urlencode($start_date) . '&end_date=' . urlencode($end_date) . '&status=' . urlencode($status) . '&address=' . urlencode($address) . '">' . $total_pages . '</a>';
                                 }
                                 ?>
                                 <!-- Nút Sau -->
-                                <a href="?page=<?php echo $page + 1; ?>&start_date=<?php echo urlencode($start_date); ?>&end_date=<?php echo urlencode($end_date); ?>&status=<?php echo urlencode($status); ?>" class="<?php echo $page >= $total_pages ? 'disabled' : ''; ?>">
+                                <a href="?page=<?php echo $page + 1; ?>&start_date=<?php echo urlencode($start_date); ?>&end_date=<?php echo urlencode($end_date); ?>&status=<?php echo urlencode($status); ?>&address=<?php echo urlencode($address); ?>" class="<?php echo $page >= $total_pages ? 'disabled' : ''; ?>">
                                     <i class="fas fa-chevron-right"></i>
                                 </a>
                             </div>
