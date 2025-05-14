@@ -1,8 +1,8 @@
 <?php
 // Bật hiển thị lỗi để debug
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
+// ini_set('display_errors', 1);
+// ini_set('display_startup_errors', 1);
+// error_reporting(E_ALL);
 
 include_once 'inc/header.php';
 include_once 'inc/style.php';
@@ -106,8 +106,8 @@ if ($is_buy_now) {
 
 // Xử lý nút thanh toán
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['name']) && isset($_POST['address']) && isset($_POST['phone'])) {
-    error_log("Form submitted with POST method");
-    error_log("POST data: " . print_r($_POST, true));
+    // error_log("Form submitted with POST method");
+    // error_log("POST data: " . print_r($_POST, true));
     
     $name = $_POST['name'];
     $address = $_POST['address'];
@@ -118,7 +118,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['name']) && isset($_POS
     // Gọi hàm xác nhận đơn hàng
     if ($is_buy_now) {
         // Thanh toán ngay: Tạo đơn hàng từ sản phẩm duy nhất
-        $result = $ct->confirm_order_direct($customer_id, $name, $address, $phone, $payment_method, $products_to_display);
+        $result = $ct->confirm_order_direct($customer_id, $name, $address, $phone, $payment_method, $products_to_display[0]);
     } else {
         // Thanh toán từ giỏ hàng
         $result = $ct->confirm_order($customer_id, $name, $address, $phone, $payment_method);

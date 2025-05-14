@@ -325,6 +325,64 @@ class cart
         }
     }
 
+// Phương thức mới để xử lý "Thanh toán ngay"
+public function confirm_order_direct($customer_id, $name, $address, $phone, $payment_method, $products)
+{
+    $customer_id = mysqli_real_escape_string($this->db->link, $customer_id);
+    $name = mysqli_real_escape_string($this->db->link, $name);
+    $address = mysqli_real_escape_string($this->db->link, $address);
+    $phone = mysqli_real_escape_string($this->db->link, $phone);
+    $payment_method = mysqli_real_escape_string($this->db->link, $payment_method);
+
+    // Bắt đầu transaction
+    $this->db->link->begin_transaction();
+
+    try {
+        // Tính tổng tiền
+        $total_price = 0;
+        foreach ($products as $product) {
+            $total_price += $product['price'] * $product['quantity'];
+        }
+
+        // Tạo đơn hàng mới
+        $order_query = "INSERT INTO tbl_order(customerId, orderDate, totalPrice, status, address, payment_method) 
+                       VALUES('$customer_id', NOW(), '$total_price', 'Chưa xác nhận', '$address', '$payment_method')";
+        $order_result = $this->db->insert($order_query);
+
+        if (!$order_result) {
+            throw new Exception("Lỗi khi tạo đơn hàng!");
+        }
+
+        $order_id = $this->db->link->insert_id;
+
+        // Lưu chi tiết đơn hàng
+        foreach ($products as $product) {
+            $product_id = $product['productId'];
+            $quantity = $product['quantity'];
+            $price = $product['price'];
+            $product_name = $product['productName'];
+            $image = $product['image'];
+
+            // Thêm chi tiết đơn hàng
+            $detail_query = "INSERT INTO tbl_order_details(orderId, productId, productName, quantity, price, image) 
+                            VALUES('$order_id', '$product_id', '$product_name', '$quantity', '$price', '$image')";
+            $detail_result = $this->db->insert($detail_query);
+
+            if (!$detail_result) {
+                throw new Exception("Lỗi khi lưu chi tiết đơn hàng!");
+            }
+        }
+
+        // Commit transaction
+        $this->db->link->commit();
+        return "Đơn hàng đã được xác nhận";
+
+    } catch (Exception $e) {
+        // Rollback transaction nếu có lỗi
+        $this->db->link->rollback();
+        return $e->getMessage();
+    }
+}
 
     public function update_order_status($orderId, $status) {
         $orderId = mysqli_real_escape_string($this->db->link, $orderId);
